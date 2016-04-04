@@ -1,0 +1,12 @@
+# OS X
+.DS_Store
+
+# IDE
+.idea/
+
+# Node
+node_modules/
+
+*.log
+*.swp
+*.swo
