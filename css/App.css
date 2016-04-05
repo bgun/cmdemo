@@ -9,11 +9,10 @@ html, body {
 }
 
 #root {
-    background: red;
-    min-height: 300px;
 }
 
 .map-container {
+    background: #DDD;
     height: 100%;
     position: fixed !important;
         left: 0;

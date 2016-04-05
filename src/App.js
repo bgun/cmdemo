@@ -1,11 +1,16 @@
 import React from 'react';
+import { connect } from 'react-redux';
 
 require('../css/App.css');
 
 
-
-
 export default class App extends React.Component {
+
+  constructor(props) {
+    super();
+    this.state = {
+    }
+  }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.googleMaps && !this._map) {
