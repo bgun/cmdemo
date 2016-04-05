@@ -77,9 +77,13 @@
 	    key: 'render',
 	    value: function render() {
 	      return _react2.default.createElement(
-	        'h1',
+	        'div',
 	        null,
-	        'Hello'
+	        _react2.default.createElement(
+	          'h1',
+	          null,
+	          'Hello'
+	        )
 	      );
 	    }
 	  }]);
