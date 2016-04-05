@@ -1,15 +1,17 @@
-import React from 'react';
+import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-require('../css/App.css');
+import SearchInput from '../components/SearchInput';
+
+import { executeSearch } from '../actions';
+
+require('../../css/App.css');
 
 
-export default class App extends React.Component {
+class App extends Component {
 
-  constructor(props) {
+  constructor() {
     super();
-    this.state = {
-    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -23,16 +25,27 @@ export default class App extends React.Component {
   }
 
   render() {
+    const { dispatch } = this.props;
     return (
       <div>
         <h1>Hello</h1>
         <div className='map-container' ref="map"></div>
         <div className='content'>
           <div className='search-container'>
-            <input type='text' className='search-input' />
+            <SearchInput onChange={ query => dispatch(executeSearch(query)) } />
           </div>
         </div>
       </div>
     )
   }
 }
+App.propTypes = {
+  googleMaps: PropTypes.func
+};
+
+function mapStateToProps(state) {
+  return {
+  }
+}
+
+export default connect(mapStateToProps)(App);

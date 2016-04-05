@@ -1,14 +1,15 @@
 * {
     box-sizing: border-box;
-}
-
-html, body {
-    font-family: sans-serif;
     margin: 0;
     padding: 0;
 }
 
-#root {
+html, body {
+    font-family: sans-serif;
+}
+
+ul, li {
+    list-style: none;
 }
 
 .map-container {
@@ -47,4 +48,8 @@ html, body {
     padding: 0 10px;
     max-width: 500px;
     width: 100%;
+}
+
+.searchResults {
+    background: red;
 }

@@ -76,7 +76,8 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var store = (0, _redux.createStore)(_reducers2.default, {}, applyMiddleware(_reduxPromise2.default));
+	var store = (0, _redux.createStore)(_reducers2.default, {}, // initialStore
+	(0, _redux.applyMiddleware)(_reduxPromise2.default));
 
 	var googleMaps = void 0;
 
@@ -88,10 +89,12 @@
 	  ), document.getElementById('root'));
 	};
 
+	// global hook for Google Maps async
 	global.initMap = function () {
 	  googleMaps = google.maps;
 	  render();
 	};
+
 	render();
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
@@ -29869,20 +29872,28 @@
 /* 476 */
 /***/ function(module, exports) {
 
-	'use strict';
+	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	function reducer(state, action) {
 
-	exports.default = function (state, action) {
 	  switch (action.type) {
-	    case '':
+	    case 'REQUEST_SEARCH':
+	      console.log("Started search", action.query);
+	      return Object.assign({}, state, {
+	        query: action.query
+	      });
 	      break;
 	    default:
+	      console.log("default reducer", state, action);
+	      return state || {};
 	      break;
 	  }
-	};
+	}
+
+	exports.default = reducer;
 
 /***/ },
 /* 477 */
@@ -29902,6 +29913,12 @@
 
 	var _reactRedux = __webpack_require__(450);
 
+	var _SearchInput = __webpack_require__(478);
+
+	var _SearchInput2 = _interopRequireDefault(_SearchInput);
+
+	var _actions = __webpack_require__(479);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -29910,18 +29927,15 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	__webpack_require__(478);
+	__webpack_require__(480);
 
-	var App = function (_React$Component) {
-	  _inherits(App, _React$Component);
+	var App = function (_Component) {
+	  _inherits(App, _Component);
 
-	  function App(props) {
+	  function App() {
 	    _classCallCheck(this, App);
 
-	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(App).call(this));
-
-	    _this.state = {};
-	    return _this;
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(App).call(this));
 	  }
 
 	  _createClass(App, [{
@@ -29938,6 +29952,8 @@
 	  }, {
 	    key: 'render',
 	    value: function render() {
+	      var dispatch = this.props.dispatch;
+
 	      return _react2.default.createElement(
 	        'div',
 	        null,
@@ -29953,7 +29969,9 @@
 	          _react2.default.createElement(
 	            'div',
 	            { className: 'search-container' },
-	            _react2.default.createElement('input', { type: 'text', className: 'search-input' })
+	            _react2.default.createElement(_SearchInput2.default, { onChange: function onChange(query) {
+	                return dispatch((0, _actions.executeSearch)(query));
+	              } })
 	          )
 	        )
 	      );
@@ -29961,21 +29979,124 @@
 	  }]);
 
 	  return App;
-	}(_react2.default.Component);
+	}(_react.Component);
 
-	exports.default = App;
+	App.propTypes = {
+	  googleMaps: _react.PropTypes.func
+	};
+
+	function mapStateToProps(state) {
+	  return {};
+	}
+
+	exports.default = (0, _reactRedux.connect)(mapStateToProps)(App);
 
 /***/ },
 /* 478 */
 /***/ function(module, exports, __webpack_require__) {
 
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(293);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var SearchInput = function (_Component) {
+	  _inherits(SearchInput, _Component);
+
+	  function SearchInput() {
+	    _classCallCheck(this, SearchInput);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(SearchInput).apply(this, arguments));
+	  }
+
+	  _createClass(SearchInput, [{
+	    key: 'onKeyUp',
+	    value: function onKeyUp(ev) {
+	      if (ev.keyCode === 13) {
+	        var value = ev.target.value;
+	        console.log("value", value);
+	        this.props.onChange(value);
+	      }
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      var _this2 = this;
+
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'searchInput' },
+	        _react2.default.createElement('input', { type: 'text', className: 'search-input', onKeyUp: function onKeyUp(e) {
+	            return _this2.onKeyUp(e);
+	          } })
+	      );
+	    }
+	  }]);
+
+	  return SearchInput;
+	}(_react.Component);
+
+	exports.default = SearchInput;
+
+	SearchInput.propTypes = {
+	  onChange: _react.PropTypes.func.isRequired
+	};
+
+/***/ },
+/* 479 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.executeSearch = executeSearch;
+	function executeSearch(query) {
+
+	  return function (dispatch) {
+	    dispatch({
+	      type: 'REQUEST_SEARCH',
+	      query: query
+	    });
+	    var url = "https://ndev-coresearch.citymaps.com/search/autocomplete/" + query + "?lat=40.74&lon=74&zoom=12&radius=5&businesses=1&locations=1&users=1&user_maps=1&categories=0&lander_regions=5000&client=web&max_businesses=10&max_locations=3&max_users=3&max_user_maps=3&max_categories=3";
+	    fetch(url).then(function (response) {
+	      return response.json();
+	    }).then(function (json) {
+	      return dispatch({
+	        type: 'RECEIVE_SEARCH',
+	        results: json
+	      });
+	    });
+	  };
+	}
+
+/***/ },
+/* 480 */
+/***/ function(module, exports, __webpack_require__) {
+
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(479);
+	var content = __webpack_require__(481);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(481)(content, {});
+	var update = __webpack_require__(483)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -29992,21 +30113,21 @@
 	}
 
 /***/ },
-/* 479 */
+/* 481 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(480)();
+	exports = module.exports = __webpack_require__(482)();
 	// imports
 
 
 	// module
-	exports.push([module.id, "* {\n    box-sizing: border-box;\n}\n\nhtml, body {\n    font-family: sans-serif;\n    margin: 0;\n    padding: 0;\n}\n\n#root {\n}\n\n.map-container {\n    background: #DDD;\n    height: 100%;\n    position: fixed !important;\n        left: 0;\n        top: 0;\n    width: 100%;\n    z-index: 1;\n}\n\n.content {\n    position: absolute;\n        top: 0;\n        left: 0;\n        right: 0;\n    z-index: 2;\n}\n.content .search-container {\n    background: white;\n    border: 0;\n    box-shadow: 0 0 10px rgba(0,0,0,0.2);\n    margin: 0 auto;\n    max-width: 500px;\n    width: 100%;\n    position: relative;\n        top: 10px;\n}\n.content .search-input {\n    border: none;\n    font-size: 16px;\n    height: 40px;\n    margin: 0 auto;\n    outline: none;\n    padding: 0 10px;\n    max-width: 500px;\n    width: 100%;\n}", ""]);
+	exports.push([module.id, "* {\n    box-sizing: border-box;\n    margin: 0;\n    padding: 0;\n}\n\nhtml, body {\n    font-family: sans-serif;\n}\n\nul, li {\n    list-style: none;\n}\n\n.map-container {\n    background: #DDD;\n    height: 100%;\n    position: fixed !important;\n        left: 0;\n        top: 0;\n    width: 100%;\n    z-index: 1;\n}\n\n.content {\n    position: absolute;\n        top: 0;\n        left: 0;\n        right: 0;\n    z-index: 2;\n}\n.content .search-container {\n    background: white;\n    border: 0;\n    box-shadow: 0 0 10px rgba(0,0,0,0.2);\n    margin: 0 auto;\n    max-width: 500px;\n    width: 100%;\n    position: relative;\n        top: 10px;\n}\n.content .search-input {\n    border: none;\n    font-size: 16px;\n    height: 40px;\n    margin: 0 auto;\n    outline: none;\n    padding: 0 10px;\n    max-width: 500px;\n    width: 100%;\n}\n\n.searchResults {\n    background: red;\n}", ""]);
 
 	// exports
 
 
 /***/ },
-/* 480 */
+/* 482 */
 /***/ function(module, exports) {
 
 	/*
@@ -30062,7 +30183,7 @@
 
 
 /***/ },
-/* 481 */
+/* 483 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
