@@ -29941,12 +29941,15 @@
 	  _createClass(App, [{
 	    key: 'componentWillReceiveProps',
 	    value: function componentWillReceiveProps(nextProps) {
-	      if (nextProps.googleMaps && !this._map) {
-	        this._map = new nextProps.googleMaps.Map(this.refs.map, {
-	          center: { lat: -34.397, lng: 150.644 },
+	      var gmaps = nextProps.googleMaps;
+	      if (gmaps && !this._map) {
+	        this._map = new gmaps.Map(this.refs.map, {
+	          center: { lat: 40.74, lng: -74 },
 	          mapTypeControl: false,
-	          zoom: 8
+	          zoom: 14
 	        });
+	        var transitLayer = new gmaps.TransitLayer();
+	        transitLayer.setMap(this._map);
 	      }
 	    }
 	  }, {
@@ -30041,9 +30044,14 @@
 	      return _react2.default.createElement(
 	        'div',
 	        { className: 'searchInput' },
-	        _react2.default.createElement('input', { type: 'text', className: 'search-input', onKeyUp: function onKeyUp(e) {
+	        _react2.default.createElement('input', {
+	          type: 'text',
+	          placeholder: 'Search',
+	          className: 'search-input',
+	          onKeyUp: function onKeyUp(e) {
 	            return _this2.onKeyUp(e);
-	          } })
+	          }
+	        })
 	      );
 	    }
 	  }]);
@@ -30121,7 +30129,7 @@
 
 
 	// module
-	exports.push([module.id, "* {\n    box-sizing: border-box;\n    margin: 0;\n    padding: 0;\n}\n\nhtml, body {\n    font-family: sans-serif;\n}\n\nul, li {\n    list-style: none;\n}\n\n.map-container {\n    background: #DDD;\n    height: 100%;\n    position: fixed !important;\n        left: 0;\n        top: 0;\n    width: 100%;\n    z-index: 1;\n}\n\n.content {\n    position: absolute;\n        top: 0;\n        left: 0;\n        right: 0;\n    z-index: 2;\n}\n.content .search-container {\n    background: white;\n    border: 0;\n    box-shadow: 0 0 10px rgba(0,0,0,0.2);\n    margin: 0 auto;\n    max-width: 500px;\n    width: 100%;\n    position: relative;\n        top: 10px;\n}\n.content .search-input {\n    border: none;\n    font-size: 16px;\n    height: 40px;\n    margin: 0 auto;\n    outline: none;\n    padding: 0 10px;\n    max-width: 500px;\n    width: 100%;\n}\n\n.searchResults {\n    background: red;\n}", ""]);
+	exports.push([module.id, "* {\n    box-sizing: border-box;\n    margin: 0;\n    padding: 0;\n}\n\nhtml, body {\n    font-family: sans-serif;\n}\n\nul, li {\n    list-style: none;\n}\n\n.map-container {\n    background: #DDD;\n    height: 100%;\n    position: fixed !important;\n        left: 0;\n        top: 0;\n    width: 100%;\n    z-index: 1;\n}\n\n.content {\n    position: absolute;\n        top: 0;\n        left: 0;\n        right: 0;\n    z-index: 2;\n}\n.content .search-container {\n    background: white;\n    border: 0;\n    box-shadow: 0 0 10px rgba(0,0,0,0.2);\n    margin: 0 auto;\n    max-width: 500px;\n    width: 90%;\n    position: relative;\n        top: 10px;\n}\n.content .search-input {\n    border: none;\n    font-size: 16px;\n    height: 40px;\n    margin: 0 auto;\n    outline: none;\n    padding: 0 10px;\n    max-width: 500px;\n    width: 100%;\n}\n\n.searchResults {\n    background: red;\n}", ""]);
 
 	// exports
 

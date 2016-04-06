@@ -13,7 +13,12 @@ export default class SearchInput extends Component {
   render() {
     return (
       <div className='searchInput'>
-        <input type='text' className='search-input' onKeyUp={ e => this.onKeyUp(e) } />
+        <input
+          type='text'
+          placeholder='Search'
+          className='search-input'
+          onKeyUp={ e => this.onKeyUp(e) }
+        />
       </div>
     )
   }

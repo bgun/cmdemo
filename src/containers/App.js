@@ -15,12 +15,15 @@ class App extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.googleMaps && !this._map) {
-      this._map = new nextProps.googleMaps.Map(this.refs.map, {
-        center: {lat: -34.397, lng: 150.644},
+    let gmaps = nextProps.googleMaps
+    if (gmaps && !this._map) {
+      this._map = new gmaps.Map(this.refs.map, {
+        center: { lat: 40.74, lng: -74 },
         mapTypeControl: false,
-        zoom: 8
+        zoom: 14
       });
+      var transitLayer = new gmaps.TransitLayer();
+      transitLayer.setMap(this._map);
     }
   }
 
