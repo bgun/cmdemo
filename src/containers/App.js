@@ -10,11 +10,13 @@ require('../../css/App.css');
 
 class App extends Component {
 
-  constructor() {
+  constructor(props) {
     super();
+    console.log("App props", props);
   }
 
   componentWillReceiveProps(nextProps) {
+    console.log(nextProps);
     let gmaps = nextProps.googleMaps
     if (gmaps && !this._map) {
       this._map = new gmaps.Map(this.refs.map, {
@@ -43,11 +45,13 @@ class App extends Component {
   }
 }
 App.propTypes = {
-  googleMaps: PropTypes.func
+  googleMaps: PropTypes.any
 };
 
 function mapStateToProps(state) {
+  console.log("mapStateToProps", state);
   return {
+    searchQuery: state.searchQuery
   }
 }
 

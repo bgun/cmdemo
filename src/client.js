@@ -8,20 +8,25 @@ import ReactDOM        from 'react-dom';
 import { Provider }    from 'react-redux';
 
 import { createStore, applyMiddleware } from 'redux';
-import promiseMiddleware from 'redux-promise';
+import loggerMiddleware from 'redux-logger';
+import thunkMiddleware  from 'redux-promise';
 
 
 import reducers from './reducers';
 let store = createStore(
   reducers,
   {}, // initialStore
-  applyMiddleware(promiseMiddleware)
+  applyMiddleware(
+    thunkMiddleware,
+    loggerMiddleware
+  )
 );
 
+global.store = store;
 
 import App from './containers/App';
 
-let googleMaps;
+let googleMaps = null;
 
 let render = () => {
   ReactDOM.render(

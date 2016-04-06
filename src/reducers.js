@@ -1,10 +1,10 @@
-function reducer(state, action) {
+function reducers(state, action) {
 
   switch (action.type) {
     case 'REQUEST_SEARCH':
       console.log("Started search", action.query);
       return Object.assign({}, state, {
-        query: action.query
+        searchQuery: action.query
       });
       break;
     default:
@@ -15,4 +15,4 @@ function reducer(state, action) {
 
 }
 
-export default reducer;
+export default reducers;

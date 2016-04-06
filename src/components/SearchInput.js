@@ -2,6 +2,11 @@ import React, { Component, PropTypes } from 'react';
 
 export default class SearchInput extends Component {
 
+  constructor(props) {
+    super();
+    console.log("searchInput props", props);
+  }
+
   onKeyUp(ev) {
     if (ev.keyCode === 13) {
       let value = ev.target.value;

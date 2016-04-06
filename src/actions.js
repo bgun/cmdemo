@@ -1,6 +1,9 @@
+
+
 export function executeSearch(query) {
 
   return dispatch => {
+    console.log("fetching");
     dispatch({
       type: 'REQUEST_SEARCH',
       query: query
