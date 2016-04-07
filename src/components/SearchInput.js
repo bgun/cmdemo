@@ -4,14 +4,12 @@ export default class SearchInput extends Component {
 
   constructor(props) {
     super();
-    console.log("searchInput props", props);
   }
 
   onKeyUp(ev) {
     if (ev.keyCode === 13) {
       let value = ev.target.value;
-      console.log("value", value);
-      this.props.onChange(value);
+      this.props.handleChange(value);
     }
   }
 
@@ -29,5 +27,5 @@ export default class SearchInput extends Component {
   }
 }
 SearchInput.propTypes = {
-  onChange: PropTypes.func.isRequired
+  handleChange: PropTypes.func.isRequired
 };

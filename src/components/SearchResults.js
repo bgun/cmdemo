@@ -3,13 +3,18 @@ import React, { Component, PropTypes } from 'react';
 export default class SearchResults extends Component {
 
   render() {
-    const { onItemClick, results } = this.props;
+    const { onItemClick, items } = this.props;
+
+    console.log(items);
 
     return (
-      <div className='searchResults'>
+      <div className={ 'searchResults '+(items.length ? '' : 'empty') }>
         <ul>
-          { results.map((result, index) => (
-            <li key={ index } onClick={ e => onItemClick(index) }>{ result }</li>
+          { items.map((result, index) => (
+            <li key={ index } className="search-item" onClick={ e => onItemClick(index) }>
+              <div className="name">{ result.name }</div>
+              <address>{ result.address }</address>
+            </li>
           ))}
         </ul>
       </div>
@@ -18,6 +23,6 @@ export default class SearchResults extends Component {
 
 }
 SearchResults.propTypes = {
-  results: PropTypes.array.isRequired,
+  items: PropTypes.array.isRequired,
   onItemClick: PropTypes.func.isRequired
 };

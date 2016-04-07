@@ -29,7 +29,7 @@ ul, li {
         right: 0;
     z-index: 2;
 }
-.content .search-container {
+.content .searchInput {
     background: white;
     border: 0;
     box-shadow: 0 0 10px rgba(0,0,0,0.2);
@@ -39,7 +39,7 @@ ul, li {
     position: relative;
         top: 10px;
 }
-.content .search-input {
+.content .searchInput input {
     border: none;
     font-size: 16px;
     height: 40px;
@@ -51,5 +51,27 @@ ul, li {
 }
 
 .searchResults {
-    background: red;
+    background: white;
+    overflow-y: scroll;
+    position: fixed;
+      bottom: 10px;
+      left: 10px;
+      right: 10px;
+    transition: all 0.2s;
+    z-index: 3;
+}
+.searchResults.empty {
+    bottom: -380px;
+}
+.searchResults ul {
+    height: 400px;
+}
+
+.search-item {
+    border-top: 1px solid #EEE;
+    margin: 10px;
+    padding: 10px;
+}
+.search-item:first-child {
+    border-top: none;
 }

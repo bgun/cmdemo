@@ -7,15 +7,36 @@ import React           from 'react';
 import ReactDOM        from 'react-dom';
 import { Provider }    from 'react-redux';
 
-import { createStore, applyMiddleware } from 'redux';
-import loggerMiddleware from 'redux-logger';
-import thunkMiddleware  from 'redux-promise';
+import { createStore, combineReducers, applyMiddleware } from 'redux';
+import createLogger     from 'redux-logger';
+import thunkMiddleware  from 'redux-thunk';
+
+import { googleMapReducer } from './reducers/googleMapReducer';
+import { searchReducer }    from './reducers/searchReducer';
 
 
-import reducers from './reducers';
+const loggerMiddleware = createLogger();
+
+
+let initialAppState = {
+  googleMap: {
+    center: {
+      lat: 40.74,
+      lng: -74
+    },
+    mapTypeControl: false,
+    zoom: 14
+  },
+  search: {
+    results: {
+      items: []
+    }
+  }
+};
+
 let store = createStore(
-  reducers,
-  {}, // initialStore
+  combineReducers({ googleMap: googleMapReducer, search: searchReducer }),
+  initialAppState,
   applyMiddleware(
     thunkMiddleware,
     loggerMiddleware
