@@ -9,8 +9,8 @@ import { executeSearch } from '../actions';
 require('../../css/App.css');
 
 
-let _hasLatLon = function(obj) {
-  return (obj.lat && obj.lon);
+let _isBusiness = function(obj) {
+  return obj.type === 1;
 };
 
 class App extends Component {
@@ -47,7 +47,7 @@ class App extends Component {
       });
     }
 
-    this._markerObjects = this.props.searchResults.filter(_hasLatLon).map((sr, index) => {
+    this._markerObjects = this.props.searchResults.filter(_isBusiness).map((sr, index) => {
       let marker = new googleMaps.Marker({
         position: { lat: sr.lat, lng: sr.lon },
         map: this._map,
@@ -74,6 +74,15 @@ class App extends Component {
     }
   }
 
+  clickItem(index) {
+    let item = this.props.searchResults[index];
+    if (_isBusiness(item)) {
+      this.openMarker(index);
+    } else {
+      console.log("user or map", item);
+    }
+  }
+
   render() {
 
     if (this._markersNeedRefresh) {
@@ -85,7 +94,7 @@ class App extends Component {
         <div className='map-container' ref="map"></div>
         <div className='content'>
           <SearchInput handleChange={ query => this.props.handleSearchQuery(query) } />
-          <SearchResults items={ this.props.searchResults } onItemClick={ index => this.openMarker(index) } />
+          <SearchResults items={ this.props.searchResults } onItemClick={ index => this.clickItem(index) } />
         </div>
       </div>
     )

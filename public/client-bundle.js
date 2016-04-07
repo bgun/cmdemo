@@ -29382,8 +29382,8 @@
 
 	__webpack_require__(479);
 
-	var _hasLatLon = function _hasLatLon(obj) {
-	  return obj.lat && obj.lon;
+	var _isBusiness = function _isBusiness(obj) {
+	  return obj.type === 1;
 	};
 
 	var App = function (_Component) {
@@ -29431,7 +29431,7 @@
 	        });
 	      }
 
-	      this._markerObjects = this.props.searchResults.filter(_hasLatLon).map(function (sr, index) {
+	      this._markerObjects = this.props.searchResults.filter(_isBusiness).map(function (sr, index) {
 	        var marker = new googleMaps.Marker({
 	          position: { lat: sr.lat, lng: sr.lon },
 	          map: _this2._map,
@@ -29461,6 +29461,16 @@
 	      }
 	    }
 	  }, {
+	    key: 'clickItem',
+	    value: function clickItem(index) {
+	      var item = this.props.searchResults[index];
+	      if (_isBusiness(item)) {
+	        this.openMarker(index);
+	      } else {
+	        console.log("user or map", item);
+	      }
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
 	      var _this3 = this;
@@ -29480,7 +29490,7 @@
 	              return _this3.props.handleSearchQuery(query);
 	            } }),
 	          _react2.default.createElement(_SearchResults2.default, { items: this.props.searchResults, onItemClick: function onItemClick(index) {
-	              return _this3.openMarker(index);
+	              return _this3.clickItem(index);
 	            } })
 	        )
 	      );
