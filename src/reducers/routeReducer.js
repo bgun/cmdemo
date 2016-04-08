@@ -7,6 +7,12 @@ export function routeReducer(state, action) {
         id: action.bid
       });
       break;
+    case 'REQUEST_USERMAP':
+      return Object.assign({}, state, {
+        type: 'usermap',
+        id: action.map_id
+      });
+      break;
     case 'REQUEST_SEARCH':
       return Object.assign({}, state, {
         type: 'search',

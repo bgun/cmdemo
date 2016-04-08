@@ -15,6 +15,7 @@ import { businessReducer  } from './reducers/businessReducer';
 import { googleMapReducer } from './reducers/googleMapReducer';
 import { routeReducer     } from './reducers/routeReducer';
 import { searchReducer    } from './reducers/searchReducer';
+import { usermapReducer   } from './reducers/usermapReducer';
 
 
 const loggerMiddleware = createLogger();
@@ -22,6 +23,8 @@ const loggerMiddleware = createLogger();
 
 const initialAppState = {
   business: {},
+  users: {},
+  usermaps: {},
   googleMap: {
     center: {
       lat: 40.74,
@@ -46,7 +49,8 @@ let store = createStore(
     business : businessReducer,
     googleMap: googleMapReducer,
     route    : routeReducer,
-    search   : searchReducer
+    search   : searchReducer,
+    usermaps : usermapReducer
   }),
   initialAppState,
   applyMiddleware(

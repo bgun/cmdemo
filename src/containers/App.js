@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import BusinessPanel from '../components/BusinessPanel';
 import SearchInput   from '../components/SearchInput';
 import SearchResults from '../components/SearchResults';
+import UsermapPanel  from '../components/UsermapPanel';
 
 import Actions from '../actions/actions';
 
@@ -12,6 +13,9 @@ require('../../css/App.css');
 
 let _isBusiness = function(obj) {
   return obj.type === 1 && obj.bid;
+};
+let _isUsermap = function(obj) {
+  return obj.type === 2 && obj.map_id;
 };
 let _isUser = function(obj) {
   return obj.type === 3 && obj.user_id;
@@ -83,6 +87,8 @@ class App extends Component {
     if (_isBusiness(item)) {
       this.openMarker(index);
       this.props.handleLoadBusiness(item.bid);
+    } else if (_isUsermap(item)) {
+      this.props.handleLoadUsermap(item.map_id);
     } else {
       console.log("user or map", item);
     }
@@ -101,6 +107,7 @@ class App extends Component {
           <SearchInput handleChange={ query => this.props.handleSearchQuery(query) } />
           <SearchResults items={ this.props.searchResults } onItemClick={ index => this.clickItem(index) } />
           { this.props.activeBusiness ? <BusinessPanel business={ this.props.activeBusiness } handleClose={ () => this.props.handleClearRoute() } /> : null }
+          { this.props.activeUsermap  ? <UsermapPanel  usermap ={ this.props.activeUsermap  } handleClose={ () => this.props.handleClearRoute() } /> : null }
         </div>
       </div>
     )
@@ -109,6 +116,7 @@ class App extends Component {
 App.propTypes = {
   handleClearRoute  : PropTypes.func.isRequired,
   handleLoadBusiness: PropTypes.func.isRequired,
+  handleLoadUsermap : PropTypes.func.isRequired,
   handleSearchQuery : PropTypes.func.isRequired,
   googleMaps: PropTypes.any
 };
@@ -123,8 +131,9 @@ export default connect(
     searchResults    : appState.search.results.items || [],
   }),
   dispatch => ({
-    handleSearchQuery  : query => dispatch(Actions.executeSearch(query)),
-    handleLoadBusiness : bid   => dispatch(Actions.fetchBusiness(bid)),
-    handleClearRoute   : ()    => dispatch(Actions.clearRoute())
+    handleSearchQuery  : query  => dispatch(Actions.executeSearch(query)),
+    handleLoadBusiness : bid    => dispatch(Actions.fetchBusiness(bid)),
+    handleLoadUsermap  : map_id => dispatch(Actions.fetchUsermap(map_id)),
+    handleClearRoute   : ()     => dispatch(Actions.clearRoute())
   })
 )(App);

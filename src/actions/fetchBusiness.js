@@ -1,6 +1,6 @@
 import qs from 'qs';
 
-export default function executeSearch(bid) {
+export default function fetchBusiness(bid) {
 
   return (dispatch, getState) => {
 
@@ -8,7 +8,7 @@ export default function executeSearch(bid) {
       external_meta: true
     };
 
-    let url = "https://ndev-coreapi.citymaps.com/v2/business/"+bid+"?" + qs.stringify(params);
+    let url = "https://ca.citymaps.com/v2/business/"+bid+"?" + qs.stringify(params);
 
     dispatch({
       type: 'REQUEST_BUSINESS',
