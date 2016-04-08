@@ -1,5 +1,8 @@
 import React, { Component, PropTypes } from 'react';
 
+require('../../css/SearchResults.less');
+
+
 export default class SearchResults extends Component {
 
   render() {

@@ -23,7 +23,6 @@ const loggerMiddleware = createLogger();
 
 const initialAppState = {
   business: {},
-  users: {},
   usermaps: {},
   googleMap: {
     center: {

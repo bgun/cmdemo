@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+import ReactDOMServer from 'react-dom/server';
 import { connect } from 'react-redux';
 
 import BusinessPanel from '../components/BusinessPanel';
@@ -9,6 +10,16 @@ import UsermapPanel  from '../components/UsermapPanel';
 import Actions from '../actions/actions';
 
 require('../../css/App.less');
+
+
+var BUSINESS_PIN_ICON = {
+  path: 'M -20,0 -20,40 -10,40 0,50 10,40 20,40, 20,0 -20,0 z',
+  fillColor: 'white',
+  fillOpacity: 1,
+  scale: 1,
+  strokeColor: '#AAAAAA',
+  strokeWeight: 1
+};
 
 
 let _isBusiness = function(obj) {
@@ -56,6 +67,8 @@ class App extends Component {
   updateMap() {
     let googleMaps = this._googleMaps;
 
+    let bounds = new googleMaps.LatLngBounds();
+
     // remove all existing markers
     if (this._markerObjects) {
       this._markerObjects.forEach(obj => {
@@ -65,10 +78,10 @@ class App extends Component {
 
     if (this.props.activeUsermap) {
       let markers = this.props.activeUsermap.markers || [];
-      console.log("markers", markers);
       this._markerObjects = markers.map((m, index) => {
+        let LL = new googleMaps.LatLng(m.business.lat, m.business.lon);
         let marker = new googleMaps.Marker({
-          position: { lat: m.business.lat, lng: m.business.lon },
+          position: LL,
           map: this._map
         });
         let popup = new googleMaps.InfoWindow({
@@ -77,12 +90,15 @@ class App extends Component {
 
         let obj = { marker, popup };
         marker.addListener('click', () => this.openMarker(index));
+
+        bounds.extend(LL);
         return obj;
       });
     } else if (this.props.searchResults) {
       this._markerObjects = this.props.searchResults.filter(_isBusiness).map((sr, index) => {
+        let LL = new googleMaps.LatLng(sr.lat, sr.lon);
         let marker = new googleMaps.Marker({
-          position: { lat: sr.lat, lng: sr.lon },
+          position: LL,
           map: this._map
         });
         let popup = new googleMaps.InfoWindow({
@@ -91,13 +107,16 @@ class App extends Component {
 
         let obj = { marker, popup };
         marker.addListener('click', () => this.openMarker(index));
+
+        bounds.extend(LL);
         return obj;
       });
+
+      this._map.fitBounds(bounds);
     }
   }
 
   openMarker(index) {
-    console.log(index);
     if (this._markerObjects) {
       this._markerObjects.forEach(obj => {
         obj.popup.close();

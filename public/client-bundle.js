@@ -90,7 +90,6 @@
 
 	var initialAppState = {
 	  business: {},
-	  users: {},
 	  usermaps: {},
 	  googleMap: {
 	    center: {
@@ -29521,6 +29520,10 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _server = __webpack_require__(499);
+
+	var _server2 = _interopRequireDefault(_server);
+
 	var _reactRedux = __webpack_require__(450);
 
 	var _BusinessPanel = __webpack_require__(477);
@@ -29552,6 +29555,15 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 	__webpack_require__(489);
+
+	var BUSINESS_PIN_ICON = {
+	  path: 'M -20,0 -20,40 -10,40 0,50 10,40 20,40, 20,0 -20,0 z',
+	  fillColor: 'white',
+	  fillOpacity: 1,
+	  scale: 1,
+	  strokeColor: '#AAAAAA',
+	  strokeWeight: 1
+	};
 
 	var _isBusiness = function _isBusiness(obj) {
 	  return obj.type === 1 && obj.bid;
@@ -29609,6 +29621,8 @@
 
 	      var googleMaps = this._googleMaps;
 
+	      var bounds = new googleMaps.LatLngBounds();
+
 	      // remove all existing markers
 	      if (this._markerObjects) {
 	        this._markerObjects.forEach(function (obj) {
@@ -29618,10 +29632,10 @@
 
 	      if (this.props.activeUsermap) {
 	        var markers = this.props.activeUsermap.markers || [];
-	        console.log("markers", markers);
 	        this._markerObjects = markers.map(function (m, index) {
+	          var LL = new googleMaps.LatLng(m.business.lat, m.business.lon);
 	          var marker = new googleMaps.Marker({
-	            position: { lat: m.business.lat, lng: m.business.lon },
+	            position: LL,
 	            map: _this2._map
 	          });
 	          var popup = new googleMaps.InfoWindow({
@@ -29632,12 +29646,15 @@
 	          marker.addListener('click', function () {
 	            return _this2.openMarker(index);
 	          });
+
+	          bounds.extend(LL);
 	          return obj;
 	        });
 	      } else if (this.props.searchResults) {
 	        this._markerObjects = this.props.searchResults.filter(_isBusiness).map(function (sr, index) {
+	          var LL = new googleMaps.LatLng(sr.lat, sr.lon);
 	          var marker = new googleMaps.Marker({
-	            position: { lat: sr.lat, lng: sr.lon },
+	            position: LL,
 	            map: _this2._map
 	          });
 	          var popup = new googleMaps.InfoWindow({
@@ -29648,14 +29665,17 @@
 	          marker.addListener('click', function () {
 	            return _this2.openMarker(index);
 	          });
+
+	          bounds.extend(LL);
 	          return obj;
 	        });
+
+	        this._map.fitBounds(bounds);
 	      }
 	    }
 	  }, {
 	    key: 'openMarker',
 	    value: function openMarker(index) {
-	      console.log(index);
 	      if (this._markerObjects) {
 	        this._markerObjects.forEach(function (obj) {
 	          obj.popup.close();
@@ -29762,6 +29782,10 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _BusinessComment = __webpack_require__(504);
+
+	var _BusinessComment2 = _interopRequireDefault(_BusinessComment);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -29769,6 +29793,8 @@
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	__webpack_require__(502);
 
 	var BusinessPanel = function (_Component) {
 	  _inherits(BusinessPanel, _Component);
@@ -29795,6 +29821,10 @@
 	      if (business.external_meta && business.external_meta.photos) {
 	        photo = business.external_meta.photos[0] || {};
 	      }
+	      var tips = null;
+	      if (business.external_meta && business.external_meta.tips) {
+	        tips = business.external_meta.tips;
+	      }
 
 	      return _react2.default.createElement(
 	        'div',
@@ -29812,6 +29842,33 @@
 	            'address',
 	            null,
 	            business.address
+	          ),
+	          _react2.default.createElement(
+	            'a',
+	            { className: 'phone', href: 'tel:' + business.phone },
+	            business.phone
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            null,
+	            'Rating: ',
+	            business.rating
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'comments' },
+	            _react2.default.createElement(
+	              'h3',
+	              null,
+	              'Comments'
+	            ),
+	            _react2.default.createElement(
+	              'ul',
+	              null,
+	              tips ? tips.map(function (tip) {
+	                return _react2.default.createElement(_BusinessComment2.default, { comment: tip });
+	              }) : null
+	            )
 	          )
 	        ),
 	        _react2.default.createElement(
@@ -29928,6 +29985,8 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+	__webpack_require__(495);
+
 	var SearchResults = function (_Component) {
 	  _inherits(SearchResults, _Component);
 
@@ -30008,8 +30067,46 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var UsermapPanel = function (_Component) {
-	  _inherits(UsermapPanel, _Component);
+	__webpack_require__(493);
+
+	var MarkerItem = function (_Component) {
+	  _inherits(MarkerItem, _Component);
+
+	  function MarkerItem() {
+	    _classCallCheck(this, MarkerItem);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(MarkerItem).apply(this, arguments));
+	  }
+
+	  _createClass(MarkerItem, [{
+	    key: 'render',
+	    value: function render() {
+	      var marker = this.props.marker;
+
+	      var business = marker.business;
+
+	      return _react2.default.createElement(
+	        'li',
+	        { className: 'markerItem', key: marker.marker_id },
+	        _react2.default.createElement(
+	          'h4',
+	          null,
+	          business.name
+	        ),
+	        _react2.default.createElement(
+	          'address',
+	          null,
+	          business.address
+	        )
+	      );
+	    }
+	  }]);
+
+	  return MarkerItem;
+	}(_react.Component);
+
+	var UsermapPanel = function (_Component2) {
+	  _inherits(UsermapPanel, _Component2);
 
 	  function UsermapPanel() {
 	    _classCallCheck(this, UsermapPanel);
@@ -30020,7 +30117,7 @@
 	  _createClass(UsermapPanel, [{
 	    key: 'render',
 	    value: function render() {
-	      var _this2 = this;
+	      var _this3 = this;
 
 	      var usermap = this.props.usermap;
 
@@ -30043,26 +30140,13 @@
 	          'ul',
 	          null,
 	          markers.map(function (m, index) {
-	            return _react2.default.createElement(
-	              'li',
-	              { key: m.marker_id },
-	              _react2.default.createElement(
-	                'h4',
-	                null,
-	                m.business.name
-	              ),
-	              _react2.default.createElement(
-	                'address',
-	                null,
-	                m.business.address
-	              )
-	            );
+	            return _react2.default.createElement(MarkerItem, { marker: m });
 	          })
 	        ),
 	        _react2.default.createElement(
 	          'span',
 	          { className: 'clear', onClick: function onClick() {
-	              return _this2.props.handleClose();
+	              return _this3.props.handleClose();
 	            } },
 	          'x'
 	        )
@@ -30781,7 +30865,7 @@
 
 
 	// module
-	exports.push([module.id, "* {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n}\nhtml,\nbody {\n  font-family: sans-serif;\n}\nul,\nli {\n  list-style: none;\n}\n.container-panel {\n  background: white;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);\n}\n.map-container {\n  background: #DDD;\n  height: 100%;\n  position: fixed !important;\n  left: 0;\n  top: 0;\n  width: 100%;\n  z-index: 1;\n}\n.content {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  z-index: 2;\n}\n.content .searchInput {\n  background: white;\n  border: 0;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);\n  margin: 0 auto;\n  max-width: 500px;\n  width: 90%;\n  position: relative;\n  top: 10px;\n}\n.content .searchInput input {\n  border: none;\n  font-size: 16px;\n  height: 40px;\n  margin: 0 auto;\n  outline: none;\n  padding: 0 10px;\n  max-width: 500px;\n  width: 100%;\n}\n.searchResults {\n  background: white;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);\n  overflow-y: scroll;\n  position: fixed;\n  bottom: 10px;\n  left: 10px;\n  right: 10px;\n  transition: all 0.2s;\n  z-index: 3;\n}\n.searchResults.empty {\n  bottom: -380px;\n}\n.searchResults ul {\n  height: 400px;\n}\n.search-item {\n  border-top: 1px solid #EEE;\n  margin: 10px;\n  padding: 10px;\n}\n.search-item:first-child {\n  border-top: none;\n}\n.clear {\n  background: white;\n  border: 1px solid #DDD;\n  border-radius: 4px;\n  cursor: pointer;\n  display: block;\n  font-size: 20px;\n  height: 30px;\n  line-height: 30px;\n  position: absolute;\n  top: 10px;\n  right: 10px;\n  text-align: center;\n  width: 30px;\n}\n.businessPanel {\n  background: white;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);\n  overflow-y: scroll;\n  padding: 0;\n  position: fixed;\n  top: 60px;\n  bottom: 10px;\n  left: 10px;\n  right: 10px;\n  transition: all 0.2s;\n  z-index: 4;\n}\n.businessPanel .inner {\n  padding: 20px;\n}\n.businessPanel.loading {\n  left: 100%;\n}\n.businessPanel .photo {\n  background-color: #DDD;\n  background-position: center;\n  background-size: cover;\n  min-height: 300px;\n}\n.usermapPanel {\n  background: white;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);\n  height: 500px;\n  overflow-y: scroll;\n  padding: 20px;\n  position: fixed;\n  bottom: 10px;\n  left: 10px;\n  right: 10px;\n  transition: all 0.2s;\n  z-index: 4;\n}\n.usermapPanel.loading {\n  left: 100%;\n}\n", ""]);
+	exports.push([module.id, ".container-panel {\n  background: white;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);\n}\n* {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n}\nhtml,\nbody {\n  font-family: sans-serif;\n}\nul,\nli {\n  list-style: none;\n}\n.map-container {\n  background: #DDD;\n  height: 100%;\n  position: fixed !important;\n  left: 0;\n  top: 0;\n  width: 100%;\n  z-index: 1;\n}\n.content {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  z-index: 2;\n}\n.content .searchInput {\n  background: white;\n  border: 0;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);\n  margin: 0 auto;\n  max-width: 500px;\n  width: 90%;\n  position: relative;\n  top: 10px;\n}\n.content .searchInput input {\n  border: none;\n  font-size: 16px;\n  height: 40px;\n  margin: 0 auto;\n  outline: none;\n  padding: 0 10px;\n  max-width: 500px;\n  width: 100%;\n}\n.clear {\n  background: white;\n  border: 1px solid #DDD;\n  border-radius: 4px;\n  cursor: pointer;\n  display: block;\n  font-size: 20px;\n  height: 30px;\n  line-height: 30px;\n  position: absolute;\n  top: 10px;\n  right: 10px;\n  text-align: center;\n  width: 30px;\n}\n.usermapPanel {\n  background: white;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);\n  height: 500px;\n  overflow-y: scroll;\n  padding: 20px;\n  position: fixed;\n  bottom: 10px;\n  left: 10px;\n  right: 10px;\n  transition: all 0.2s;\n  z-index: 4;\n}\n.usermapPanel.loading {\n  left: 100%;\n}\n", ""]);
 
 	// exports
 
@@ -31093,6 +31177,191 @@
 			URL.revokeObjectURL(oldSrc);
 	}
 
+
+/***/ },
+/* 493 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(494);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(492)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../node_modules/css-loader/index.js!./../node_modules/less-loader/index.js!./UsermapPanel.less", function() {
+				var newContent = require("!!./../node_modules/css-loader/index.js!./../node_modules/less-loader/index.js!./UsermapPanel.less");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 494 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(491)();
+	// imports
+
+
+	// module
+	exports.push([module.id, ".container-panel {\n  background: white;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);\n}\n.markerItem {\n  border-top: 1px solid #DDD;\n  margin: 10px;\n  padding: 10px 0 0 0;\n}\n.markerItem:first-child {\n  border-top: none;\n}\n", ""]);
+
+	// exports
+
+
+/***/ },
+/* 495 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(496);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(492)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../node_modules/css-loader/index.js!./../node_modules/less-loader/index.js!./SearchResults.less", function() {
+				var newContent = require("!!./../node_modules/css-loader/index.js!./../node_modules/less-loader/index.js!./SearchResults.less");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 496 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(491)();
+	// imports
+
+
+	// module
+	exports.push([module.id, ".container-panel {\n  background: white;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);\n}\n.searchResults {\n  background: white;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);\n  overflow-y: scroll;\n  position: fixed;\n  bottom: 10px;\n  left: 10px;\n  right: 10px;\n  transition: all 0.2s;\n  z-index: 3;\n}\n.searchResults.empty {\n  bottom: -380px;\n}\n.searchResults ul {\n  height: 400px;\n}\n.searchResults .search-item {\n  border-top: 1px solid #EEE;\n  margin: 10px;\n  padding: 10px;\n}\n.searchResults .search-item:first-child {\n  border-top: none;\n}\n", ""]);
+
+	// exports
+
+
+/***/ },
+/* 497 */,
+/* 498 */,
+/* 499 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	module.exports = __webpack_require__(439);
+
+
+/***/ },
+/* 500 */,
+/* 501 */,
+/* 502 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(503);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(492)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../node_modules/css-loader/index.js!./../node_modules/less-loader/index.js!./BusinessPanel.less", function() {
+				var newContent = require("!!./../node_modules/css-loader/index.js!./../node_modules/less-loader/index.js!./BusinessPanel.less");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 503 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(491)();
+	// imports
+
+
+	// module
+	exports.push([module.id, ".container-panel {\n  background: white;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);\n}\n.businessPanel {\n  background: white;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);\n  overflow-y: scroll;\n  padding: 0;\n  position: fixed;\n  top: 60px;\n  bottom: 10px;\n  left: 10px;\n  right: 10px;\n  transition: all 0.2s;\n  z-index: 4;\n}\n.businessPanel .inner {\n  padding: 20px;\n}\n.businessPanel.loading {\n  left: 100%;\n}\n.businessPanel .photo {\n  background-color: #DDD;\n  background-position: center;\n  background-size: cover;\n  min-height: 300px;\n}\n.businessPanel .comments {\n  margin-top: 20px;\n}\n.businessPanel .comments .businessComment {\n  font-size: 14px;\n  padding: 10px 0;\n}\n", ""]);
+
+	// exports
+
+
+/***/ },
+/* 504 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(293);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var BusinessComment = function (_Component) {
+	  _inherits(BusinessComment, _Component);
+
+	  function BusinessComment() {
+	    _classCallCheck(this, BusinessComment);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(BusinessComment).apply(this, arguments));
+	  }
+
+	  _createClass(BusinessComment, [{
+	    key: "render",
+	    value: function render() {
+	      var comment = this.props.comment;
+
+
+	      return _react2.default.createElement(
+	        "li",
+	        { className: "businessComment" },
+	        comment.note
+	      );
+	    }
+	  }]);
+
+	  return BusinessComment;
+	}(_react.Component);
+
+	exports.default = BusinessComment;
 
 /***/ }
 /******/ ]);
