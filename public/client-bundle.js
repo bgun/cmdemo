@@ -93,11 +93,11 @@
 	  usermaps: {},
 	  googleMap: {
 	    center: {
-	      lat: 40.74,
-	      lng: -74
+	      lat: 37.77,
+	      lng: -122.45
 	    },
 	    mapTypeControl: false,
-	    zoom: 14
+	    zoom: 13
 	  },
 	  route: {
 	    type: null,
@@ -29398,8 +29398,13 @@
 	function googleMapReducer(state, action) {
 
 	  switch (action.type) {
-	    case 'REQUEST_SEARCH':
-	      return state;
+	    case 'MAP_UPDATE':
+	      return Object.assign({}, state, {
+	        center: {
+	          lat: action.map.getCenter().lat(),
+	          lng: action.map.getCenter().lng()
+	        }
+	      });
 	      break;
 	    default:
 	      return state || {};
@@ -29607,17 +29612,23 @@
 	  }, {
 	    key: 'createMapIfNeeded',
 	    value: function createMapIfNeeded() {
+	      var _this2 = this;
+
 	      var googleMaps = this._googleMaps;
 	      if (!this._map) {
 	        var transitLayer = new googleMaps.TransitLayer();
 	        this._map = new googleMaps.Map(this.refs.map, this.props.googleMapOptions);
 	        transitLayer.setMap(this._map);
+
+	        this._map.addListener('dragend', function () {
+	          return _this2.props.handleMapMove(_this2._map);
+	        });
 	      }
 	    }
 	  }, {
 	    key: 'updateMap',
 	    value: function updateMap() {
-	      var _this2 = this;
+	      var _this3 = this;
 
 	      var googleMaps = this._googleMaps;
 
@@ -29636,7 +29647,7 @@
 	          var LL = new googleMaps.LatLng(m.business.lat, m.business.lon);
 	          var marker = new googleMaps.Marker({
 	            position: LL,
-	            map: _this2._map
+	            map: _this3._map
 	          });
 	          var popup = new googleMaps.InfoWindow({
 	            content: m.business.name
@@ -29644,7 +29655,7 @@
 
 	          var obj = { marker: marker, popup: popup };
 	          marker.addListener('click', function () {
-	            return _this2.openMarker(index);
+	            return _this3.openMarker(index);
 	          });
 
 	          bounds.extend(LL);
@@ -29655,7 +29666,7 @@
 	          var LL = new googleMaps.LatLng(sr.lat, sr.lon);
 	          var marker = new googleMaps.Marker({
 	            position: LL,
-	            map: _this2._map
+	            map: _this3._map
 	          });
 	          var popup = new googleMaps.InfoWindow({
 	            content: sr.name
@@ -29663,7 +29674,7 @@
 
 	          var obj = { marker: marker, popup: popup };
 	          marker.addListener('click', function () {
-	            return _this2.openMarker(index);
+	            return _this3.openMarker(index);
 	          });
 
 	          bounds.extend(LL);
@@ -29700,7 +29711,7 @@
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      var _this3 = this;
+	      var _this4 = this;
 
 	      if (this._markersNeedRefresh) {
 	        this.updateMap();
@@ -29714,16 +29725,16 @@
 	          'div',
 	          { className: 'content' },
 	          _react2.default.createElement(_SearchInput2.default, { handleChange: function handleChange(query) {
-	              return _this3.props.handleSearchQuery(query);
+	              return _this4.props.handleSearchQuery(query);
 	            } }),
 	          _react2.default.createElement(_SearchResults2.default, { items: this.props.searchResults, onItemClick: function onItemClick(index) {
-	              return _this3.clickItem(index);
+	              return _this4.clickItem(index);
 	            } }),
 	          this.props.activeBusiness ? _react2.default.createElement(_BusinessPanel2.default, { business: this.props.activeBusiness, handleClose: function handleClose() {
-	              return _this3.props.handleClearRoute();
+	              return _this4.props.handleClearRoute();
 	            } }) : null,
 	          this.props.activeUsermap ? _react2.default.createElement(_UsermapPanel2.default, { usermap: this.props.activeUsermap, handleClose: function handleClose() {
-	              return _this3.props.handleClearRoute();
+	              return _this4.props.handleClearRoute();
 	            } }) : null
 	        )
 	      );
@@ -29751,8 +29762,11 @@
 	  };
 	}, function (dispatch) {
 	  return {
-	    handleSearchQuery: function handleSearchQuery(query) {
-	      return dispatch(_actions2.default.executeSearch(query));
+	    handleClearRoute: function handleClearRoute() {
+	      return dispatch(_actions2.default.clearRoute());
+	    },
+	    handleMapMove: function handleMapMove(map) {
+	      return dispatch(_actions2.default.mapUpdate(map));
 	    },
 	    handleLoadBusiness: function handleLoadBusiness(bid) {
 	      return dispatch(_actions2.default.fetchBusiness(bid));
@@ -29760,8 +29774,8 @@
 	    handleLoadUsermap: function handleLoadUsermap(map_id) {
 	      return dispatch(_actions2.default.fetchUsermap(map_id));
 	    },
-	    handleClearRoute: function handleClearRoute() {
-	      return dispatch(_actions2.default.clearRoute());
+	    handleSearchQuery: function handleSearchQuery(query) {
+	      return dispatch(_actions2.default.executeSearch(query));
 	    }
 	  };
 	})(App);
@@ -30193,11 +30207,19 @@
 	  };
 	}; // central file for importing all actions
 
+	var mapUpdate = function mapUpdate(map) {
+	  return {
+	    type: 'MAP_UPDATE',
+	    map: map
+	  };
+	};
+
 	exports.default = {
 	  clearRoute: clearRoute,
 	  executeSearch: _executeSearch2.default,
 	  fetchBusiness: _fetchBusiness2.default,
-	  fetchUsermap: _fetchUsermap2.default
+	  fetchUsermap: _fetchUsermap2.default,
+	  mapUpdate: mapUpdate
 	};
 
 /***/ },
@@ -30222,9 +30244,9 @@
 	  return function (dispatch, getState) {
 
 	    var params = {
-	      lat: 40.74,
-	      lon: -74,
-	      zoom: 12,
+	      lat: getState().googleMap.center.lat,
+	      lon: getState().googleMap.center.lng,
+	      zoom: 15,
 	      radius: 5,
 	      businesses: 1,
 	      locations: 0,

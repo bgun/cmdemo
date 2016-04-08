@@ -26,11 +26,11 @@ const initialAppState = {
   usermaps: {},
   googleMap: {
     center: {
-      lat: 40.74,
-      lng: -74
+      lat: 37.77,
+      lng: -122.45
     },
     mapTypeControl: false,
-    zoom: 14
+    zoom: 13
   },
   route: {
     type: null,

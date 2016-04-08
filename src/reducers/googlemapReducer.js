@@ -1,8 +1,13 @@
 export function googleMapReducer(state, action) {
 
   switch (action.type) {
-    case 'REQUEST_SEARCH':
-      return state;
+    case 'MAP_UPDATE':
+      return Object.assign({}, state, {
+        center: {
+          lat: action.map.getCenter().lat(),
+          lng: action.map.getCenter().lng()
+        }
+      });
       break;
     default:
       return state || {}

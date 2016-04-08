@@ -5,9 +5,9 @@ export default function executeSearch(query) {
   return (dispatch, getState) => {
 
     let params = {
-      lat: 40.74,
-      lon: -74,
-      zoom: 12,
+      lat: getState().googleMap.center.lat,
+      lon: getState().googleMap.center.lng,
+      zoom: 15,
       radius: 5,
       businesses: 1,
       locations: 0,

@@ -61,6 +61,8 @@ class App extends Component {
       let transitLayer = new googleMaps.TransitLayer();
       this._map = new googleMaps.Map(this.refs.map, this.props.googleMapOptions);
       transitLayer.setMap(this._map);
+
+      this._map.addListener('dragend', () => this.props.handleMapMove(this._map));
     }
   }
 
@@ -175,9 +177,10 @@ export default connect(
     searchResults    : appState.search.results.items || [],
   }),
   dispatch => ({
-    handleSearchQuery  : query  => dispatch(Actions.executeSearch(query)),
+    handleClearRoute   : ()     => dispatch(Actions.clearRoute()),
+    handleMapMove      : map    => dispatch(Actions.mapUpdate(map)),
     handleLoadBusiness : bid    => dispatch(Actions.fetchBusiness(bid)),
     handleLoadUsermap  : map_id => dispatch(Actions.fetchUsermap(map_id)),
-    handleClearRoute   : ()     => dispatch(Actions.clearRoute())
+    handleSearchQuery  : query  => dispatch(Actions.executeSearch(query))
   })
 )(App);
