@@ -70,11 +70,15 @@
 
 	var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 
-	var _googleMapReducer = __webpack_require__(484);
+	var _businessReducer = __webpack_require__(486);
 
-	var _searchReducer = __webpack_require__(483);
+	var _googleMapReducer = __webpack_require__(471);
 
-	var _App = __webpack_require__(472);
+	var _routeReducer = __webpack_require__(488);
+
+	var _searchReducer = __webpack_require__(472);
+
+	var _App = __webpack_require__(473);
 
 	var _App2 = _interopRequireDefault(_App);
 
@@ -83,6 +87,7 @@
 	var loggerMiddleware = (0, _reduxLogger2.default)();
 
 	var initialAppState = {
+	  business: {},
 	  googleMap: {
 	    center: {
 	      lat: 40.74,
@@ -91,6 +96,10 @@
 	    mapTypeControl: false,
 	    zoom: 14
 	  },
+	  route: {
+	    type: null,
+	    id: ''
+	  },
 	  search: {
 	    results: {
 	      items: []
@@ -98,7 +107,12 @@
 	  }
 	};
 
-	var store = (0, _redux.createStore)((0, _redux.combineReducers)({ googleMap: _googleMapReducer.googleMapReducer, search: _searchReducer.searchReducer }), initialAppState, (0, _redux.applyMiddleware)(_reduxThunk2.default, loggerMiddleware));
+	var store = (0, _redux.createStore)((0, _redux.combineReducers)({
+	  business: _businessReducer.businessReducer,
+	  googleMap: _googleMapReducer.googleMapReducer,
+	  route: _routeReducer.routeReducer,
+	  search: _searchReducer.searchReducer
+	}), initialAppState, (0, _redux.applyMiddleware)(_reduxThunk2.default, loggerMiddleware));
 
 	global.store = store;
 
@@ -29344,8 +29358,58 @@
 	}
 
 /***/ },
-/* 471 */,
+/* 471 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.googleMapReducer = googleMapReducer;
+	function googleMapReducer(state, action) {
+
+	  switch (action.type) {
+	    case 'REQUEST_SEARCH':
+	      return state;
+	      break;
+	    default:
+	      return state || {};
+	      break;
+	  }
+	}
+
+/***/ },
 /* 472 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.searchReducer = searchReducer;
+	function searchReducer(state, action) {
+
+	  switch (action.type) {
+	    case 'REQUEST_SEARCH':
+	      return Object.assign({}, state, {
+	        query: action.query
+	      });
+	      break;
+	    case 'RECEIVE_SEARCH':
+	      return Object.assign({}, state, {
+	        results: action.results
+	      });
+	      break;
+	    default:
+	      return state || {};
+	      break;
+	  }
+	}
+
+/***/ },
+/* 473 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29362,15 +29426,21 @@
 
 	var _reactRedux = __webpack_require__(450);
 
-	var _SearchInput = __webpack_require__(473);
+	var _BusinessPanel = __webpack_require__(489);
+
+	var _BusinessPanel2 = _interopRequireDefault(_BusinessPanel);
+
+	var _SearchInput = __webpack_require__(474);
 
 	var _SearchInput2 = _interopRequireDefault(_SearchInput);
 
-	var _SearchResults = __webpack_require__(485);
+	var _SearchResults = __webpack_require__(475);
 
 	var _SearchResults2 = _interopRequireDefault(_SearchResults);
 
-	var _actions = __webpack_require__(474);
+	var _actions = __webpack_require__(476);
+
+	var _actions2 = _interopRequireDefault(_actions);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -29380,10 +29450,13 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	__webpack_require__(479);
+	__webpack_require__(477);
 
 	var _isBusiness = function _isBusiness(obj) {
-	  return obj.type === 1;
+	  return obj.type === 1 && obj.bid;
+	};
+	var _isUser = function _isUser(obj) {
+	  return obj.type === 3 && obj.user_id;
 	};
 
 	var App = function (_Component) {
@@ -29466,6 +29539,7 @@
 	      var item = this.props.searchResults[index];
 	      if (_isBusiness(item)) {
 	        this.openMarker(index);
+	        this.props.handleLoadBusiness(item.bid);
 	      } else {
 	        console.log("user or map", item);
 	      }
@@ -29491,7 +29565,10 @@
 	            } }),
 	          _react2.default.createElement(_SearchResults2.default, { items: this.props.searchResults, onItemClick: function onItemClick(index) {
 	              return _this3.clickItem(index);
-	            } })
+	            } }),
+	          this.props.activeBusiness ? _react2.default.createElement(_BusinessPanel2.default, { business: this.props.activeBusiness, handleClose: function handleClose() {
+	              return _this3.props.handleClearRoute();
+	            } }) : null
 	        )
 	      );
 	    }
@@ -29501,12 +29578,16 @@
 	}(_react.Component);
 
 	App.propTypes = {
+	  handleClearRoute: _react.PropTypes.func.isRequired,
+	  handleLoadBusiness: _react.PropTypes.func.isRequired,
 	  handleSearchQuery: _react.PropTypes.func.isRequired,
 	  googleMaps: _react.PropTypes.any
 	};
 
 	exports.default = (0, _reactRedux.connect)(function (appState) {
 	  return {
+	    activeBusiness: appState.route.type === 'business' ? appState.business[appState.route.id] || { _loading: true } : null,
+	    activeUsermap: appState.route.type === 'usermap' ? appState.usermaps[appState.route.id] || { _loading: true } : null,
 	    googleMapOptions: appState.googleMap,
 	    searchQuery: appState.search.query,
 	    searchResults: appState.search.results.items || []
@@ -29514,13 +29595,19 @@
 	}, function (dispatch) {
 	  return {
 	    handleSearchQuery: function handleSearchQuery(query) {
-	      return dispatch((0, _actions.executeSearch)(query));
+	      return dispatch(_actions2.default.executeSearch(query));
+	    },
+	    handleLoadBusiness: function handleLoadBusiness(bid) {
+	      return dispatch(_actions2.default.fetchBusiness(bid));
+	    },
+	    handleClearRoute: function handleClearRoute() {
+	      return dispatch(_actions2.default.clearRoute());
 	    }
 	  };
 	})(App);
 
 /***/ },
-/* 473 */
+/* 474 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29590,81 +29677,84 @@
 	};
 
 /***/ },
-/* 474 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.executeSearch = executeSearch;
-
-	var _qs = __webpack_require__(475);
-
-	var _qs2 = _interopRequireDefault(_qs);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function executeSearch(query) {
-
-	  console.log("execute search");
-
-	  return function (dispatch, getState) {
-
-	    var params = {
-	      lat: 40.74,
-	      lon: -74,
-	      zoom: 12,
-	      radius: 5,
-	      businesses: 1,
-	      locations: 0,
-	      users: 1,
-	      user_maps: 1,
-	      categories: 0,
-	      client: "web",
-	      max_businesses: 10,
-	      max_locations: 3,
-	      max_users: 3,
-	      max_user_maps: 3,
-	      max_categories: 3
-	    };
-
-	    var url = "https://ndev-coresearch.citymaps.com/search/autocomplete/" + query + "?" + _qs2.default.stringify(params);
-
-	    dispatch({
-	      type: 'REQUEST_SEARCH',
-	      query: query
-	    });
-
-	    console.log("fetching");
-
-	    fetch(url).then(function (response) {
-	      return response.json();
-	    }).then(function (json) {
-	      dispatch({
-	        type: 'RECEIVE_SEARCH',
-	        results: json
-	      });
-	      console.log(json);
-	    });
-	  };
-	}
-
-/***/ },
 /* 475 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Stringify = __webpack_require__(476);
-	var Parse = __webpack_require__(478);
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
 
-	module.exports = {
-	    stringify: Stringify,
-	    parse: Parse
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(293);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var SearchResults = function (_Component) {
+	  _inherits(SearchResults, _Component);
+
+	  function SearchResults() {
+	    _classCallCheck(this, SearchResults);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(SearchResults).apply(this, arguments));
+	  }
+
+	  _createClass(SearchResults, [{
+	    key: 'render',
+	    value: function render() {
+	      var _props = this.props;
+	      var onItemClick = _props.onItemClick;
+	      var items = _props.items;
+
+
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'searchResults ' + (items.length ? '' : 'empty') },
+	        _react2.default.createElement(
+	          'ul',
+	          null,
+	          items.map(function (result, index) {
+	            return _react2.default.createElement(
+	              'li',
+	              { key: index, className: 'search-item', onClick: function onClick(e) {
+	                  return onItemClick(index);
+	                } },
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'name' },
+	                result.name
+	              ),
+	              _react2.default.createElement(
+	                'address',
+	                null,
+	                result.address
+	              )
+	            );
+	          })
+	        )
+	      );
+	    }
+	  }]);
+
+	  return SearchResults;
+	}(_react.Component);
+
+	exports.default = SearchResults;
+
+	SearchResults.propTypes = {
+	  items: _react.PropTypes.array.isRequired,
+	  onItemClick: _react.PropTypes.func.isRequired
 	};
-
 
 /***/ },
 /* 476 */
@@ -29672,486 +29762,45 @@
 
 	'use strict';
 
-	var Utils = __webpack_require__(477);
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
 
-	var internals = {
-	    delimiter: '&',
-	    arrayPrefixGenerators: {
-	        brackets: function (prefix) {
-	            return prefix + '[]';
-	        },
-	        indices: function (prefix, key) {
-	            return prefix + '[' + key + ']';
-	        },
-	        repeat: function (prefix) {
-	            return prefix;
-	        }
-	    },
-	    strictNullHandling: false,
-	    skipNulls: false,
-	    encode: true
+	var _executeSearch = __webpack_require__(481);
+
+	var _executeSearch2 = _interopRequireDefault(_executeSearch);
+
+	var _fetchBusiness = __webpack_require__(487);
+
+	var _fetchBusiness2 = _interopRequireDefault(_fetchBusiness);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	// central file for importing all actions
+
+	var clearRoute = function clearRoute() {
+	  return {
+	    type: 'CLEAR_ROUTE'
+	  };
 	};
 
-	internals.stringify = function (object, prefix, generateArrayPrefix, strictNullHandling, skipNulls, encode, filter, sort, allowDots) {
-	    var obj = object;
-	    if (typeof filter === 'function') {
-	        obj = filter(prefix, obj);
-	    } else if (Utils.isBuffer(obj)) {
-	        obj = String(obj);
-	    } else if (obj instanceof Date) {
-	        obj = obj.toISOString();
-	    } else if (obj === null) {
-	        if (strictNullHandling) {
-	            return encode ? Utils.encode(prefix) : prefix;
-	        }
-
-	        obj = '';
-	    }
-
-	    if (typeof obj === 'string' || typeof obj === 'number' || typeof obj === 'boolean') {
-	        if (encode) {
-	            return [Utils.encode(prefix) + '=' + Utils.encode(obj)];
-	        }
-	        return [prefix + '=' + obj];
-	    }
-
-	    var values = [];
-
-	    if (typeof obj === 'undefined') {
-	        return values;
-	    }
-
-	    var objKeys;
-	    if (Array.isArray(filter)) {
-	        objKeys = filter;
-	    } else {
-	        var keys = Object.keys(obj);
-	        objKeys = sort ? keys.sort(sort) : keys;
-	    }
-
-	    for (var i = 0; i < objKeys.length; ++i) {
-	        var key = objKeys[i];
-
-	        if (skipNulls && obj[key] === null) {
-	            continue;
-	        }
-
-	        if (Array.isArray(obj)) {
-	            values = values.concat(internals.stringify(obj[key], generateArrayPrefix(prefix, key), generateArrayPrefix, strictNullHandling, skipNulls, encode, filter, sort, allowDots));
-	        } else {
-	            values = values.concat(internals.stringify(obj[key], prefix + (allowDots ? '.' + key : '[' + key + ']'), generateArrayPrefix, strictNullHandling, skipNulls, encode, filter, sort, allowDots));
-	        }
-	    }
-
-	    return values;
+	exports.default = {
+	  executeSearch: _executeSearch2.default,
+	  fetchBusiness: _fetchBusiness2.default,
+	  clearRoute: clearRoute
 	};
-
-	module.exports = function (object, opts) {
-	    var obj = object;
-	    var options = opts || {};
-	    var delimiter = typeof options.delimiter === 'undefined' ? internals.delimiter : options.delimiter;
-	    var strictNullHandling = typeof options.strictNullHandling === 'boolean' ? options.strictNullHandling : internals.strictNullHandling;
-	    var skipNulls = typeof options.skipNulls === 'boolean' ? options.skipNulls : internals.skipNulls;
-	    var encode = typeof options.encode === 'boolean' ? options.encode : internals.encode;
-	    var sort = typeof options.sort === 'function' ? options.sort : null;
-	    var allowDots = typeof options.allowDots === 'undefined' ? false : options.allowDots;
-	    var objKeys;
-	    var filter;
-	    if (typeof options.filter === 'function') {
-	        filter = options.filter;
-	        obj = filter('', obj);
-	    } else if (Array.isArray(options.filter)) {
-	        objKeys = filter = options.filter;
-	    }
-
-	    var keys = [];
-
-	    if (typeof obj !== 'object' || obj === null) {
-	        return '';
-	    }
-
-	    var arrayFormat;
-	    if (options.arrayFormat in internals.arrayPrefixGenerators) {
-	        arrayFormat = options.arrayFormat;
-	    } else if ('indices' in options) {
-	        arrayFormat = options.indices ? 'indices' : 'repeat';
-	    } else {
-	        arrayFormat = 'indices';
-	    }
-
-	    var generateArrayPrefix = internals.arrayPrefixGenerators[arrayFormat];
-
-	    if (!objKeys) {
-	        objKeys = Object.keys(obj);
-	    }
-
-	    if (sort) {
-	        objKeys.sort(sort);
-	    }
-
-	    for (var i = 0; i < objKeys.length; ++i) {
-	        var key = objKeys[i];
-
-	        if (skipNulls && obj[key] === null) {
-	            continue;
-	        }
-
-	        keys = keys.concat(internals.stringify(obj[key], key, generateArrayPrefix, strictNullHandling, skipNulls, encode, filter, sort, allowDots));
-	    }
-
-	    return keys.join(delimiter);
-	};
-
 
 /***/ },
 /* 477 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	var hexTable = (function () {
-	    var array = new Array(256);
-	    for (var i = 0; i < 256; ++i) {
-	        array[i] = '%' + ((i < 16 ? '0' : '') + i.toString(16)).toUpperCase();
-	    }
-
-	    return array;
-	}());
-
-	exports.arrayToObject = function (source, options) {
-	    var obj = options.plainObjects ? Object.create(null) : {};
-	    for (var i = 0; i < source.length; ++i) {
-	        if (typeof source[i] !== 'undefined') {
-	            obj[i] = source[i];
-	        }
-	    }
-
-	    return obj;
-	};
-
-	exports.merge = function (target, source, options) {
-	    if (!source) {
-	        return target;
-	    }
-
-	    if (typeof source !== 'object') {
-	        if (Array.isArray(target)) {
-	            target.push(source);
-	        } else if (typeof target === 'object') {
-	            target[source] = true;
-	        } else {
-	            return [target, source];
-	        }
-
-	        return target;
-	    }
-
-	    if (typeof target !== 'object') {
-	        return [target].concat(source);
-	    }
-
-	    var mergeTarget = target;
-	    if (Array.isArray(target) && !Array.isArray(source)) {
-	        mergeTarget = exports.arrayToObject(target, options);
-	    }
-
-		return Object.keys(source).reduce(function (acc, key) {
-	        var value = source[key];
-
-	        if (Object.prototype.hasOwnProperty.call(acc, key)) {
-	            acc[key] = exports.merge(acc[key], value, options);
-	        } else {
-	            acc[key] = value;
-	        }
-			return acc;
-	    }, mergeTarget);
-	};
-
-	exports.decode = function (str) {
-	    try {
-	        return decodeURIComponent(str.replace(/\+/g, ' '));
-	    } catch (e) {
-	        return str;
-	    }
-	};
-
-	exports.encode = function (str) {
-	    // This code was originally written by Brian White (mscdex) for the io.js core querystring library.
-	    // It has been adapted here for stricter adherence to RFC 3986
-	    if (str.length === 0) {
-	        return str;
-	    }
-
-	    var string = typeof str === 'string' ? str : String(str);
-
-	    var out = '';
-	    for (var i = 0; i < string.length; ++i) {
-	        var c = string.charCodeAt(i);
-
-	        if (
-	            c === 0x2D || // -
-	            c === 0x2E || // .
-	            c === 0x5F || // _
-	            c === 0x7E || // ~
-	            (c >= 0x30 && c <= 0x39) || // 0-9
-	            (c >= 0x41 && c <= 0x5A) || // a-z
-	            (c >= 0x61 && c <= 0x7A) // A-Z
-	        ) {
-	            out += string.charAt(i);
-	            continue;
-	        }
-
-	        if (c < 0x80) {
-	            out = out + hexTable[c];
-	            continue;
-	        }
-
-	        if (c < 0x800) {
-	            out = out + (hexTable[0xC0 | (c >> 6)] + hexTable[0x80 | (c & 0x3F)]);
-	            continue;
-	        }
-
-	        if (c < 0xD800 || c >= 0xE000) {
-	            out = out + (hexTable[0xE0 | (c >> 12)] + hexTable[0x80 | ((c >> 6) & 0x3F)] + hexTable[0x80 | (c & 0x3F)]);
-	            continue;
-	        }
-
-	        i += 1;
-	        c = 0x10000 + (((c & 0x3FF) << 10) | (string.charCodeAt(i) & 0x3FF));
-	        out += (hexTable[0xF0 | (c >> 18)] + hexTable[0x80 | ((c >> 12) & 0x3F)] + hexTable[0x80 | ((c >> 6) & 0x3F)] + hexTable[0x80 | (c & 0x3F)]);
-	    }
-
-	    return out;
-	};
-
-	exports.compact = function (obj, references) {
-	    if (typeof obj !== 'object' || obj === null) {
-	        return obj;
-	    }
-
-	    var refs = references || [];
-	    var lookup = refs.indexOf(obj);
-	    if (lookup !== -1) {
-	        return refs[lookup];
-	    }
-
-	    refs.push(obj);
-
-	    if (Array.isArray(obj)) {
-	        var compacted = [];
-
-	        for (var i = 0; i < obj.length; ++i) {
-	            if (typeof obj[i] !== 'undefined') {
-	                compacted.push(obj[i]);
-	            }
-	        }
-
-	        return compacted;
-	    }
-
-	    var keys = Object.keys(obj);
-	    for (var j = 0; j < keys.length; ++j) {
-	        var key = keys[j];
-	        obj[key] = exports.compact(obj[key], refs);
-	    }
-
-	    return obj;
-	};
-
-	exports.isRegExp = function (obj) {
-	    return Object.prototype.toString.call(obj) === '[object RegExp]';
-	};
-
-	exports.isBuffer = function (obj) {
-	    if (obj === null || typeof obj === 'undefined') {
-	        return false;
-	    }
-
-	    return !!(obj.constructor && obj.constructor.isBuffer && obj.constructor.isBuffer(obj));
-	};
-
-
-/***/ },
-/* 478 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var Utils = __webpack_require__(477);
-
-	var internals = {
-	    delimiter: '&',
-	    depth: 5,
-	    arrayLimit: 20,
-	    parameterLimit: 1000,
-	    strictNullHandling: false,
-	    plainObjects: false,
-	    allowPrototypes: false,
-	    allowDots: false
-	};
-
-	internals.parseValues = function (str, options) {
-	    var obj = {};
-	    var parts = str.split(options.delimiter, options.parameterLimit === Infinity ? undefined : options.parameterLimit);
-
-	    for (var i = 0; i < parts.length; ++i) {
-	        var part = parts[i];
-	        var pos = part.indexOf(']=') === -1 ? part.indexOf('=') : part.indexOf(']=') + 1;
-
-	        if (pos === -1) {
-	            obj[Utils.decode(part)] = '';
-
-	            if (options.strictNullHandling) {
-	                obj[Utils.decode(part)] = null;
-	            }
-	        } else {
-	            var key = Utils.decode(part.slice(0, pos));
-	            var val = Utils.decode(part.slice(pos + 1));
-
-	            if (Object.prototype.hasOwnProperty.call(obj, key)) {
-	                obj[key] = [].concat(obj[key]).concat(val);
-	            } else {
-	                obj[key] = val;
-	            }
-	        }
-	    }
-
-	    return obj;
-	};
-
-	internals.parseObject = function (chain, val, options) {
-	    if (!chain.length) {
-	        return val;
-	    }
-
-	    var root = chain.shift();
-
-	    var obj;
-	    if (root === '[]') {
-	        obj = [];
-	        obj = obj.concat(internals.parseObject(chain, val, options));
-	    } else {
-	        obj = options.plainObjects ? Object.create(null) : {};
-	        var cleanRoot = root[0] === '[' && root[root.length - 1] === ']' ? root.slice(1, root.length - 1) : root;
-	        var index = parseInt(cleanRoot, 10);
-	        if (
-	            !isNaN(index) &&
-	            root !== cleanRoot &&
-	            String(index) === cleanRoot &&
-	            index >= 0 &&
-	            (options.parseArrays && index <= options.arrayLimit)
-	        ) {
-	            obj = [];
-	            obj[index] = internals.parseObject(chain, val, options);
-	        } else {
-	            obj[cleanRoot] = internals.parseObject(chain, val, options);
-	        }
-	    }
-
-	    return obj;
-	};
-
-	internals.parseKeys = function (givenKey, val, options) {
-	    if (!givenKey) {
-	        return;
-	    }
-
-	    // Transform dot notation to bracket notation
-	    var key = options.allowDots ? givenKey.replace(/\.([^\.\[]+)/g, '[$1]') : givenKey;
-
-	    // The regex chunks
-
-	    var parent = /^([^\[\]]*)/;
-	    var child = /(\[[^\[\]]*\])/g;
-
-	    // Get the parent
-
-	    var segment = parent.exec(key);
-
-	    // Stash the parent if it exists
-
-	    var keys = [];
-	    if (segment[1]) {
-	        // If we aren't using plain objects, optionally prefix keys
-	        // that would overwrite object prototype properties
-	        if (!options.plainObjects && Object.prototype.hasOwnProperty(segment[1])) {
-	            if (!options.allowPrototypes) {
-	                return;
-	            }
-	        }
-
-	        keys.push(segment[1]);
-	    }
-
-	    // Loop through children appending to the array until we hit depth
-
-	    var i = 0;
-	    while ((segment = child.exec(key)) !== null && i < options.depth) {
-	        i += 1;
-	        if (!options.plainObjects && Object.prototype.hasOwnProperty(segment[1].replace(/\[|\]/g, ''))) {
-	            if (!options.allowPrototypes) {
-	                continue;
-	            }
-	        }
-	        keys.push(segment[1]);
-	    }
-
-	    // If there's a remainder, just add whatever is left
-
-	    if (segment) {
-	        keys.push('[' + key.slice(segment.index) + ']');
-	    }
-
-	    return internals.parseObject(keys, val, options);
-	};
-
-	module.exports = function (str, opts) {
-	    var options = opts || {};
-	    options.delimiter = typeof options.delimiter === 'string' || Utils.isRegExp(options.delimiter) ? options.delimiter : internals.delimiter;
-	    options.depth = typeof options.depth === 'number' ? options.depth : internals.depth;
-	    options.arrayLimit = typeof options.arrayLimit === 'number' ? options.arrayLimit : internals.arrayLimit;
-	    options.parseArrays = options.parseArrays !== false;
-	    options.allowDots = typeof options.allowDots === 'boolean' ? options.allowDots : internals.allowDots;
-	    options.plainObjects = typeof options.plainObjects === 'boolean' ? options.plainObjects : internals.plainObjects;
-	    options.allowPrototypes = typeof options.allowPrototypes === 'boolean' ? options.allowPrototypes : internals.allowPrototypes;
-	    options.parameterLimit = typeof options.parameterLimit === 'number' ? options.parameterLimit : internals.parameterLimit;
-	    options.strictNullHandling = typeof options.strictNullHandling === 'boolean' ? options.strictNullHandling : internals.strictNullHandling;
-
-	    if (
-	        str === '' ||
-	        str === null ||
-	        typeof str === 'undefined'
-	    ) {
-	        return options.plainObjects ? Object.create(null) : {};
-	    }
-
-	    var tempObj = typeof str === 'string' ? internals.parseValues(str, options) : str;
-	    var obj = options.plainObjects ? Object.create(null) : {};
-
-	    // Iterate over the keys and setup the new object
-
-	    var keys = Object.keys(tempObj);
-	    for (var i = 0; i < keys.length; ++i) {
-	        var key = keys[i];
-	        var newObj = internals.parseKeys(key, tempObj[key], options);
-	        obj = Utils.merge(obj, newObj, options);
-	    }
-
-	    return Utils.compact(obj);
-	};
-
-
-/***/ },
-/* 479 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(480);
+	var content = __webpack_require__(478);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(482)(content, {});
+	var update = __webpack_require__(480)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -30168,21 +29817,21 @@
 	}
 
 /***/ },
-/* 480 */
+/* 478 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(481)();
+	exports = module.exports = __webpack_require__(479)();
 	// imports
 
 
 	// module
-	exports.push([module.id, "* {\n    box-sizing: border-box;\n    margin: 0;\n    padding: 0;\n}\n\nhtml, body {\n    font-family: sans-serif;\n}\n\nul, li {\n    list-style: none;\n}\n\n.map-container {\n    background: #DDD;\n    height: 100%;\n    position: fixed !important;\n        left: 0;\n        top: 0;\n    width: 100%;\n    z-index: 1;\n}\n\n.content {\n    position: absolute;\n        top: 0;\n        left: 0;\n        right: 0;\n    z-index: 2;\n}\n.content .searchInput {\n    background: white;\n    border: 0;\n    box-shadow: 0 0 10px rgba(0,0,0,0.2);\n    margin: 0 auto;\n    max-width: 500px;\n    width: 90%;\n    position: relative;\n        top: 10px;\n}\n.content .searchInput input {\n    border: none;\n    font-size: 16px;\n    height: 40px;\n    margin: 0 auto;\n    outline: none;\n    padding: 0 10px;\n    max-width: 500px;\n    width: 100%;\n}\n\n.searchResults {\n    background: white;\n    overflow-y: scroll;\n    position: fixed;\n      bottom: 10px;\n      left: 10px;\n      right: 10px;\n    transition: all 0.2s;\n    z-index: 3;\n}\n.searchResults.empty {\n    bottom: -380px;\n}\n.searchResults ul {\n    height: 400px;\n}\n\n.search-item {\n    border-top: 1px solid #EEE;\n    margin: 10px;\n    padding: 10px;\n}\n.search-item:first-child {\n    border-top: none;\n}\n", ""]);
+	exports.push([module.id, "* {\n    box-sizing: border-box;\n    margin: 0;\n    padding: 0;\n}\n\nhtml, body {\n    font-family: sans-serif;\n}\n\nul, li {\n    list-style: none;\n}\n\n.map-container {\n    background: #DDD;\n    height: 100%;\n    position: fixed !important;\n        left: 0;\n        top: 0;\n    width: 100%;\n    z-index: 1;\n}\n\n.content {\n    position: absolute;\n        top: 0;\n        left: 0;\n        right: 0;\n    z-index: 2;\n}\n.content .searchInput {\n    background: white;\n    border: 0;\n    box-shadow: 0 0 10px rgba(0,0,0,0.2);\n    margin: 0 auto;\n    max-width: 500px;\n    width: 90%;\n    position: relative;\n        top: 10px;\n}\n.content .searchInput input {\n    border: none;\n    font-size: 16px;\n    height: 40px;\n    margin: 0 auto;\n    outline: none;\n    padding: 0 10px;\n    max-width: 500px;\n    width: 100%;\n}\n\n.searchResults {\n    background: white;\n    overflow-y: scroll;\n    position: fixed;\n      bottom: 10px;\n      left: 10px;\n      right: 10px;\n    transition: all 0.2s;\n    z-index: 3;\n}\n.searchResults.empty {\n    bottom: -380px;\n}\n.searchResults ul {\n    height: 400px;\n}\n\n.search-item {\n    border-top: 1px solid #EEE;\n    margin: 10px;\n    padding: 10px;\n}\n.search-item:first-child {\n    border-top: none;\n}\n\n.businessPanel {\n    background: white;\n    overflow-y: scroll;\n    padding: 20px;\n    position: fixed;\n      top: 60px;\n      bottom: 10px;\n      left: 10px;\n      right: 10px;\n    transition: all 0.2s;\n    z-index: 4\n}\n.businessPanel .clear {\n    border: 1px solid #DDD;\n    border-radius: 10px;\n    cursor: pointer;\n    display: block;\n    font-size: 20px;\n    height: 50px;\n    line-height: 50px;\n    position: absolute;\n      top: 10px;\n      right: 10px;\n    text-align: center;\n    width: 50px;\n}\n.businessPanel.loading {\n    left: 100%;\n}", ""]);
 
 	// exports
 
 
 /***/ },
-/* 481 */
+/* 479 */
 /***/ function(module, exports) {
 
 	/*
@@ -30238,7 +29887,7 @@
 
 
 /***/ },
-/* 482 */
+/* 480 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -30490,33 +30139,213 @@
 
 
 /***/ },
-/* 483 */
-/***/ function(module, exports) {
+/* 481 */
+/***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.searchReducer = searchReducer;
-	function searchReducer(state, action) {
+	exports.default = executeSearch;
 
-	  switch (action.type) {
-	    case 'REQUEST_SEARCH':
-	      return Object.assign({}, state, {
-	        query: action.query
+	var _qs = __webpack_require__(482);
+
+	var _qs2 = _interopRequireDefault(_qs);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function executeSearch(query) {
+
+	  return function (dispatch, getState) {
+
+	    var params = {
+	      lat: 40.74,
+	      lon: -74,
+	      zoom: 12,
+	      radius: 5,
+	      businesses: 1,
+	      locations: 0,
+	      users: 1,
+	      user_maps: 1,
+	      categories: 0,
+	      client: "web",
+	      max_businesses: 10,
+	      max_locations: 3,
+	      max_users: 3,
+	      max_user_maps: 3,
+	      max_categories: 3
+	    };
+
+	    var url = "https://ndev-coresearch.citymaps.com/search/autocomplete/" + query + "?" + _qs2.default.stringify(params);
+
+	    dispatch({
+	      type: 'REQUEST_SEARCH',
+	      query: query
+	    });
+
+	    fetch(url).then(function (response) {
+	      return response.json();
+	    }).then(function (json) {
+	      dispatch({
+	        type: 'RECEIVE_SEARCH',
+	        results: json
 	      });
-	      break;
-	    case 'RECEIVE_SEARCH':
-	      return Object.assign({}, state, {
-	        results: action.results
-	      });
-	      break;
-	    default:
-	      return state || {};
-	      break;
-	  }
+	    });
+	  };
 	}
+
+/***/ },
+/* 482 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var Stringify = __webpack_require__(483);
+	var Parse = __webpack_require__(485);
+
+	module.exports = {
+	    stringify: Stringify,
+	    parse: Parse
+	};
+
+
+/***/ },
+/* 483 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var Utils = __webpack_require__(484);
+
+	var internals = {
+	    delimiter: '&',
+	    arrayPrefixGenerators: {
+	        brackets: function (prefix) {
+	            return prefix + '[]';
+	        },
+	        indices: function (prefix, key) {
+	            return prefix + '[' + key + ']';
+	        },
+	        repeat: function (prefix) {
+	            return prefix;
+	        }
+	    },
+	    strictNullHandling: false,
+	    skipNulls: false,
+	    encode: true
+	};
+
+	internals.stringify = function (object, prefix, generateArrayPrefix, strictNullHandling, skipNulls, encode, filter, sort, allowDots) {
+	    var obj = object;
+	    if (typeof filter === 'function') {
+	        obj = filter(prefix, obj);
+	    } else if (Utils.isBuffer(obj)) {
+	        obj = String(obj);
+	    } else if (obj instanceof Date) {
+	        obj = obj.toISOString();
+	    } else if (obj === null) {
+	        if (strictNullHandling) {
+	            return encode ? Utils.encode(prefix) : prefix;
+	        }
+
+	        obj = '';
+	    }
+
+	    if (typeof obj === 'string' || typeof obj === 'number' || typeof obj === 'boolean') {
+	        if (encode) {
+	            return [Utils.encode(prefix) + '=' + Utils.encode(obj)];
+	        }
+	        return [prefix + '=' + obj];
+	    }
+
+	    var values = [];
+
+	    if (typeof obj === 'undefined') {
+	        return values;
+	    }
+
+	    var objKeys;
+	    if (Array.isArray(filter)) {
+	        objKeys = filter;
+	    } else {
+	        var keys = Object.keys(obj);
+	        objKeys = sort ? keys.sort(sort) : keys;
+	    }
+
+	    for (var i = 0; i < objKeys.length; ++i) {
+	        var key = objKeys[i];
+
+	        if (skipNulls && obj[key] === null) {
+	            continue;
+	        }
+
+	        if (Array.isArray(obj)) {
+	            values = values.concat(internals.stringify(obj[key], generateArrayPrefix(prefix, key), generateArrayPrefix, strictNullHandling, skipNulls, encode, filter, sort, allowDots));
+	        } else {
+	            values = values.concat(internals.stringify(obj[key], prefix + (allowDots ? '.' + key : '[' + key + ']'), generateArrayPrefix, strictNullHandling, skipNulls, encode, filter, sort, allowDots));
+	        }
+	    }
+
+	    return values;
+	};
+
+	module.exports = function (object, opts) {
+	    var obj = object;
+	    var options = opts || {};
+	    var delimiter = typeof options.delimiter === 'undefined' ? internals.delimiter : options.delimiter;
+	    var strictNullHandling = typeof options.strictNullHandling === 'boolean' ? options.strictNullHandling : internals.strictNullHandling;
+	    var skipNulls = typeof options.skipNulls === 'boolean' ? options.skipNulls : internals.skipNulls;
+	    var encode = typeof options.encode === 'boolean' ? options.encode : internals.encode;
+	    var sort = typeof options.sort === 'function' ? options.sort : null;
+	    var allowDots = typeof options.allowDots === 'undefined' ? false : options.allowDots;
+	    var objKeys;
+	    var filter;
+	    if (typeof options.filter === 'function') {
+	        filter = options.filter;
+	        obj = filter('', obj);
+	    } else if (Array.isArray(options.filter)) {
+	        objKeys = filter = options.filter;
+	    }
+
+	    var keys = [];
+
+	    if (typeof obj !== 'object' || obj === null) {
+	        return '';
+	    }
+
+	    var arrayFormat;
+	    if (options.arrayFormat in internals.arrayPrefixGenerators) {
+	        arrayFormat = options.arrayFormat;
+	    } else if ('indices' in options) {
+	        arrayFormat = options.indices ? 'indices' : 'repeat';
+	    } else {
+	        arrayFormat = 'indices';
+	    }
+
+	    var generateArrayPrefix = internals.arrayPrefixGenerators[arrayFormat];
+
+	    if (!objKeys) {
+	        objKeys = Object.keys(obj);
+	    }
+
+	    if (sort) {
+	        objKeys.sort(sort);
+	    }
+
+	    for (var i = 0; i < objKeys.length; ++i) {
+	        var key = objKeys[i];
+
+	        if (skipNulls && obj[key] === null) {
+	            continue;
+	        }
+
+	        keys = keys.concat(internals.stringify(obj[key], key, generateArrayPrefix, strictNullHandling, skipNulls, encode, filter, sort, allowDots));
+	    }
+
+	    return keys.join(delimiter);
+	};
+
 
 /***/ },
 /* 484 */
@@ -30524,15 +30353,355 @@
 
 	'use strict';
 
+	var hexTable = (function () {
+	    var array = new Array(256);
+	    for (var i = 0; i < 256; ++i) {
+	        array[i] = '%' + ((i < 16 ? '0' : '') + i.toString(16)).toUpperCase();
+	    }
+
+	    return array;
+	}());
+
+	exports.arrayToObject = function (source, options) {
+	    var obj = options.plainObjects ? Object.create(null) : {};
+	    for (var i = 0; i < source.length; ++i) {
+	        if (typeof source[i] !== 'undefined') {
+	            obj[i] = source[i];
+	        }
+	    }
+
+	    return obj;
+	};
+
+	exports.merge = function (target, source, options) {
+	    if (!source) {
+	        return target;
+	    }
+
+	    if (typeof source !== 'object') {
+	        if (Array.isArray(target)) {
+	            target.push(source);
+	        } else if (typeof target === 'object') {
+	            target[source] = true;
+	        } else {
+	            return [target, source];
+	        }
+
+	        return target;
+	    }
+
+	    if (typeof target !== 'object') {
+	        return [target].concat(source);
+	    }
+
+	    var mergeTarget = target;
+	    if (Array.isArray(target) && !Array.isArray(source)) {
+	        mergeTarget = exports.arrayToObject(target, options);
+	    }
+
+		return Object.keys(source).reduce(function (acc, key) {
+	        var value = source[key];
+
+	        if (Object.prototype.hasOwnProperty.call(acc, key)) {
+	            acc[key] = exports.merge(acc[key], value, options);
+	        } else {
+	            acc[key] = value;
+	        }
+			return acc;
+	    }, mergeTarget);
+	};
+
+	exports.decode = function (str) {
+	    try {
+	        return decodeURIComponent(str.replace(/\+/g, ' '));
+	    } catch (e) {
+	        return str;
+	    }
+	};
+
+	exports.encode = function (str) {
+	    // This code was originally written by Brian White (mscdex) for the io.js core querystring library.
+	    // It has been adapted here for stricter adherence to RFC 3986
+	    if (str.length === 0) {
+	        return str;
+	    }
+
+	    var string = typeof str === 'string' ? str : String(str);
+
+	    var out = '';
+	    for (var i = 0; i < string.length; ++i) {
+	        var c = string.charCodeAt(i);
+
+	        if (
+	            c === 0x2D || // -
+	            c === 0x2E || // .
+	            c === 0x5F || // _
+	            c === 0x7E || // ~
+	            (c >= 0x30 && c <= 0x39) || // 0-9
+	            (c >= 0x41 && c <= 0x5A) || // a-z
+	            (c >= 0x61 && c <= 0x7A) // A-Z
+	        ) {
+	            out += string.charAt(i);
+	            continue;
+	        }
+
+	        if (c < 0x80) {
+	            out = out + hexTable[c];
+	            continue;
+	        }
+
+	        if (c < 0x800) {
+	            out = out + (hexTable[0xC0 | (c >> 6)] + hexTable[0x80 | (c & 0x3F)]);
+	            continue;
+	        }
+
+	        if (c < 0xD800 || c >= 0xE000) {
+	            out = out + (hexTable[0xE0 | (c >> 12)] + hexTable[0x80 | ((c >> 6) & 0x3F)] + hexTable[0x80 | (c & 0x3F)]);
+	            continue;
+	        }
+
+	        i += 1;
+	        c = 0x10000 + (((c & 0x3FF) << 10) | (string.charCodeAt(i) & 0x3FF));
+	        out += (hexTable[0xF0 | (c >> 18)] + hexTable[0x80 | ((c >> 12) & 0x3F)] + hexTable[0x80 | ((c >> 6) & 0x3F)] + hexTable[0x80 | (c & 0x3F)]);
+	    }
+
+	    return out;
+	};
+
+	exports.compact = function (obj, references) {
+	    if (typeof obj !== 'object' || obj === null) {
+	        return obj;
+	    }
+
+	    var refs = references || [];
+	    var lookup = refs.indexOf(obj);
+	    if (lookup !== -1) {
+	        return refs[lookup];
+	    }
+
+	    refs.push(obj);
+
+	    if (Array.isArray(obj)) {
+	        var compacted = [];
+
+	        for (var i = 0; i < obj.length; ++i) {
+	            if (typeof obj[i] !== 'undefined') {
+	                compacted.push(obj[i]);
+	            }
+	        }
+
+	        return compacted;
+	    }
+
+	    var keys = Object.keys(obj);
+	    for (var j = 0; j < keys.length; ++j) {
+	        var key = keys[j];
+	        obj[key] = exports.compact(obj[key], refs);
+	    }
+
+	    return obj;
+	};
+
+	exports.isRegExp = function (obj) {
+	    return Object.prototype.toString.call(obj) === '[object RegExp]';
+	};
+
+	exports.isBuffer = function (obj) {
+	    if (obj === null || typeof obj === 'undefined') {
+	        return false;
+	    }
+
+	    return !!(obj.constructor && obj.constructor.isBuffer && obj.constructor.isBuffer(obj));
+	};
+
+
+/***/ },
+/* 485 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var Utils = __webpack_require__(484);
+
+	var internals = {
+	    delimiter: '&',
+	    depth: 5,
+	    arrayLimit: 20,
+	    parameterLimit: 1000,
+	    strictNullHandling: false,
+	    plainObjects: false,
+	    allowPrototypes: false,
+	    allowDots: false
+	};
+
+	internals.parseValues = function (str, options) {
+	    var obj = {};
+	    var parts = str.split(options.delimiter, options.parameterLimit === Infinity ? undefined : options.parameterLimit);
+
+	    for (var i = 0; i < parts.length; ++i) {
+	        var part = parts[i];
+	        var pos = part.indexOf(']=') === -1 ? part.indexOf('=') : part.indexOf(']=') + 1;
+
+	        if (pos === -1) {
+	            obj[Utils.decode(part)] = '';
+
+	            if (options.strictNullHandling) {
+	                obj[Utils.decode(part)] = null;
+	            }
+	        } else {
+	            var key = Utils.decode(part.slice(0, pos));
+	            var val = Utils.decode(part.slice(pos + 1));
+
+	            if (Object.prototype.hasOwnProperty.call(obj, key)) {
+	                obj[key] = [].concat(obj[key]).concat(val);
+	            } else {
+	                obj[key] = val;
+	            }
+	        }
+	    }
+
+	    return obj;
+	};
+
+	internals.parseObject = function (chain, val, options) {
+	    if (!chain.length) {
+	        return val;
+	    }
+
+	    var root = chain.shift();
+
+	    var obj;
+	    if (root === '[]') {
+	        obj = [];
+	        obj = obj.concat(internals.parseObject(chain, val, options));
+	    } else {
+	        obj = options.plainObjects ? Object.create(null) : {};
+	        var cleanRoot = root[0] === '[' && root[root.length - 1] === ']' ? root.slice(1, root.length - 1) : root;
+	        var index = parseInt(cleanRoot, 10);
+	        if (
+	            !isNaN(index) &&
+	            root !== cleanRoot &&
+	            String(index) === cleanRoot &&
+	            index >= 0 &&
+	            (options.parseArrays && index <= options.arrayLimit)
+	        ) {
+	            obj = [];
+	            obj[index] = internals.parseObject(chain, val, options);
+	        } else {
+	            obj[cleanRoot] = internals.parseObject(chain, val, options);
+	        }
+	    }
+
+	    return obj;
+	};
+
+	internals.parseKeys = function (givenKey, val, options) {
+	    if (!givenKey) {
+	        return;
+	    }
+
+	    // Transform dot notation to bracket notation
+	    var key = options.allowDots ? givenKey.replace(/\.([^\.\[]+)/g, '[$1]') : givenKey;
+
+	    // The regex chunks
+
+	    var parent = /^([^\[\]]*)/;
+	    var child = /(\[[^\[\]]*\])/g;
+
+	    // Get the parent
+
+	    var segment = parent.exec(key);
+
+	    // Stash the parent if it exists
+
+	    var keys = [];
+	    if (segment[1]) {
+	        // If we aren't using plain objects, optionally prefix keys
+	        // that would overwrite object prototype properties
+	        if (!options.plainObjects && Object.prototype.hasOwnProperty(segment[1])) {
+	            if (!options.allowPrototypes) {
+	                return;
+	            }
+	        }
+
+	        keys.push(segment[1]);
+	    }
+
+	    // Loop through children appending to the array until we hit depth
+
+	    var i = 0;
+	    while ((segment = child.exec(key)) !== null && i < options.depth) {
+	        i += 1;
+	        if (!options.plainObjects && Object.prototype.hasOwnProperty(segment[1].replace(/\[|\]/g, ''))) {
+	            if (!options.allowPrototypes) {
+	                continue;
+	            }
+	        }
+	        keys.push(segment[1]);
+	    }
+
+	    // If there's a remainder, just add whatever is left
+
+	    if (segment) {
+	        keys.push('[' + key.slice(segment.index) + ']');
+	    }
+
+	    return internals.parseObject(keys, val, options);
+	};
+
+	module.exports = function (str, opts) {
+	    var options = opts || {};
+	    options.delimiter = typeof options.delimiter === 'string' || Utils.isRegExp(options.delimiter) ? options.delimiter : internals.delimiter;
+	    options.depth = typeof options.depth === 'number' ? options.depth : internals.depth;
+	    options.arrayLimit = typeof options.arrayLimit === 'number' ? options.arrayLimit : internals.arrayLimit;
+	    options.parseArrays = options.parseArrays !== false;
+	    options.allowDots = typeof options.allowDots === 'boolean' ? options.allowDots : internals.allowDots;
+	    options.plainObjects = typeof options.plainObjects === 'boolean' ? options.plainObjects : internals.plainObjects;
+	    options.allowPrototypes = typeof options.allowPrototypes === 'boolean' ? options.allowPrototypes : internals.allowPrototypes;
+	    options.parameterLimit = typeof options.parameterLimit === 'number' ? options.parameterLimit : internals.parameterLimit;
+	    options.strictNullHandling = typeof options.strictNullHandling === 'boolean' ? options.strictNullHandling : internals.strictNullHandling;
+
+	    if (
+	        str === '' ||
+	        str === null ||
+	        typeof str === 'undefined'
+	    ) {
+	        return options.plainObjects ? Object.create(null) : {};
+	    }
+
+	    var tempObj = typeof str === 'string' ? internals.parseValues(str, options) : str;
+	    var obj = options.plainObjects ? Object.create(null) : {};
+
+	    // Iterate over the keys and setup the new object
+
+	    var keys = Object.keys(tempObj);
+	    for (var i = 0; i < keys.length; ++i) {
+	        var key = keys[i];
+	        var newObj = internals.parseKeys(key, tempObj[key], options);
+	        obj = Utils.merge(obj, newObj, options);
+	    }
+
+	    return Utils.compact(obj);
+	};
+
+
+/***/ },
+/* 486 */
+/***/ function(module, exports) {
+
+	'use strict';
+
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.googleMapReducer = googleMapReducer;
-	function googleMapReducer(state, action) {
+	exports.businessReducer = businessReducer;
+	function businessReducer(state, action) {
 
 	  switch (action.type) {
-	    case 'REQUEST_SEARCH':
-	      return state;
+	    case 'RECEIVE_BUSINESS':
+	      var obj = {};
+	      obj[action.bid] = action.business;
+	      return Object.assign({}, state, obj);
 	      break;
 	    default:
 	      return state || {};
@@ -30541,7 +30710,89 @@
 	}
 
 /***/ },
-/* 485 */
+/* 487 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = executeSearch;
+
+	var _qs = __webpack_require__(482);
+
+	var _qs2 = _interopRequireDefault(_qs);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function executeSearch(bid) {
+
+	  return function (dispatch, getState) {
+
+	    var params = {
+	      external_meta: true
+	    };
+
+	    var url = "https://ndev-coreapi.citymaps.com/v2/business/" + bid + "?" + _qs2.default.stringify(params);
+
+	    dispatch({
+	      type: 'REQUEST_BUSINESS',
+	      bid: bid
+	    });
+
+	    fetch(url).then(function (response) {
+	      return response.json();
+	    }).then(function (json) {
+	      dispatch({
+	        type: 'RECEIVE_BUSINESS',
+	        bid: bid,
+	        business: json.business
+	      });
+	    });
+	  };
+	}
+
+/***/ },
+/* 488 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.routeReducer = routeReducer;
+	function routeReducer(state, action) {
+
+	  switch (action.type) {
+	    case 'REQUEST_BUSINESS':
+	      return Object.assign({}, state, {
+	        type: 'business',
+	        id: action.bid
+	      });
+	      break;
+	    case 'REQUEST_SEARCH':
+	      return Object.assign({}, state, {
+	        type: 'search',
+	        query: action.query
+	      });
+	      break;
+	    case 'CLEAR_ROUTE':
+	      return Object.assign({}, state, {
+	        type: null,
+	        id: '',
+	        query: ''
+	      });
+	      break;
+	    default:
+	      return state || {};
+	      break;
+	  }
+	}
+
+/***/ },
+/* 489 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30564,62 +30815,58 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var SearchResults = function (_Component) {
-	  _inherits(SearchResults, _Component);
+	var BusinessPanel = function (_Component) {
+	  _inherits(BusinessPanel, _Component);
 
-	  function SearchResults() {
-	    _classCallCheck(this, SearchResults);
+	  function BusinessPanel() {
+	    _classCallCheck(this, BusinessPanel);
 
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(SearchResults).apply(this, arguments));
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(BusinessPanel).apply(this, arguments));
 	  }
 
-	  _createClass(SearchResults, [{
+	  _createClass(BusinessPanel, [{
 	    key: 'render',
 	    value: function render() {
-	      var _props = this.props;
-	      var onItemClick = _props.onItemClick;
-	      var items = _props.items;
+	      var _this2 = this;
 
+	      var business = this.props.business;
 
-	      console.log(items);
+	      var loadingClass = '';
+	      if (business._loading) {
+	        loadingClass = 'loading';
+	      }
 
 	      return _react2.default.createElement(
 	        'div',
-	        { className: 'searchResults ' + (items.length ? '' : 'empty') },
+	        { className: 'businessPanel ' + loadingClass },
 	        _react2.default.createElement(
-	          'ul',
+	          'h1',
 	          null,
-	          items.map(function (result, index) {
-	            return _react2.default.createElement(
-	              'li',
-	              { key: index, className: 'search-item', onClick: function onClick(e) {
-	                  return onItemClick(index);
-	                } },
-	              _react2.default.createElement(
-	                'div',
-	                { className: 'name' },
-	                result.name
-	              ),
-	              _react2.default.createElement(
-	                'address',
-	                null,
-	                result.address
-	              )
-	            );
-	          })
+	          business.name
+	        ),
+	        _react2.default.createElement(
+	          'address',
+	          null,
+	          business.address
+	        ),
+	        _react2.default.createElement(
+	          'span',
+	          { className: 'clear', onClick: function onClick() {
+	              return _this2.props.handleClose();
+	            } },
+	          'x'
 	        )
 	      );
 	    }
 	  }]);
 
-	  return SearchResults;
+	  return BusinessPanel;
 	}(_react.Component);
 
-	exports.default = SearchResults;
+	exports.default = BusinessPanel;
 
-	SearchResults.propTypes = {
-	  items: _react.PropTypes.array.isRequired,
-	  onItemClick: _react.PropTypes.func.isRequired
+	BusinessPanel.propTypes = {
+	  business: _react.PropTypes.object
 	};
 
 /***/ }

@@ -5,8 +5,6 @@ export default class SearchResults extends Component {
   render() {
     const { onItemClick, items } = this.props;
 
-    console.log(items);
-
     return (
       <div className={ 'searchResults '+(items.length ? '' : 'empty') }>
         <ul>

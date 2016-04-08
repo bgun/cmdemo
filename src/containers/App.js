@@ -1,16 +1,20 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
+import BusinessPanel from '../components/BusinessPanel';
 import SearchInput   from '../components/SearchInput';
 import SearchResults from '../components/SearchResults';
 
-import { executeSearch } from '../actions';
+import Actions from '../actions/actions';
 
 require('../../css/App.css');
 
 
 let _isBusiness = function(obj) {
-  return obj.type === 1;
+  return obj.type === 1 && obj.bid;
+};
+let _isUser = function(obj) {
+  return obj.type === 3 && obj.user_id;
 };
 
 class App extends Component {
@@ -78,6 +82,7 @@ class App extends Component {
     let item = this.props.searchResults[index];
     if (_isBusiness(item)) {
       this.openMarker(index);
+      this.props.handleLoadBusiness(item.bid);
     } else {
       console.log("user or map", item);
     }
@@ -95,24 +100,31 @@ class App extends Component {
         <div className='content'>
           <SearchInput handleChange={ query => this.props.handleSearchQuery(query) } />
           <SearchResults items={ this.props.searchResults } onItemClick={ index => this.clickItem(index) } />
+          { this.props.activeBusiness ? <BusinessPanel business={ this.props.activeBusiness } handleClose={ () => this.props.handleClearRoute() } /> : null }
         </div>
       </div>
     )
   }
 }
 App.propTypes = {
-  handleSearchQuery: PropTypes.func.isRequired,
+  handleClearRoute  : PropTypes.func.isRequired,
+  handleLoadBusiness: PropTypes.func.isRequired,
+  handleSearchQuery : PropTypes.func.isRequired,
   googleMaps: PropTypes.any
 };
 
 
 export default connect(
   appState => ({
+    activeBusiness   : appState.route.type === 'business' ? (appState.business[appState.route.id] || { _loading: true }) : null,
+    activeUsermap    : appState.route.type === 'usermap'  ? (appState.usermaps[appState.route.id] || { _loading: true }) : null,
     googleMapOptions : appState.googleMap,
     searchQuery      : appState.search.query,
-    searchResults    : appState.search.results.items || []
+    searchResults    : appState.search.results.items || [],
   }),
   dispatch => ({
-    handleSearchQuery: (query) => dispatch(executeSearch(query))
+    handleSearchQuery  : query => dispatch(Actions.executeSearch(query)),
+    handleLoadBusiness : bid   => dispatch(Actions.fetchBusiness(bid)),
+    handleClearRoute   : ()    => dispatch(Actions.clearRoute())
   })
 )(App);

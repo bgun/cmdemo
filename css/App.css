@@ -75,3 +75,33 @@ ul, li {
 .search-item:first-child {
     border-top: none;
 }
+
+.businessPanel {
+    background: white;
+    overflow-y: scroll;
+    padding: 20px;
+    position: fixed;
+      top: 60px;
+      bottom: 10px;
+      left: 10px;
+      right: 10px;
+    transition: all 0.2s;
+    z-index: 4
+}
+.businessPanel .clear {
+    border: 1px solid #DDD;
+    border-radius: 10px;
+    cursor: pointer;
+    display: block;
+    font-size: 20px;
+    height: 50px;
+    line-height: 50px;
+    position: absolute;
+      top: 10px;
+      right: 10px;
+    text-align: center;
+    width: 50px;
+}
+.businessPanel.loading {
+    left: 100%;
+}

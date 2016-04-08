@@ -11,14 +11,17 @@ import { createStore, combineReducers, applyMiddleware } from 'redux';
 import createLogger     from 'redux-logger';
 import thunkMiddleware  from 'redux-thunk';
 
+import { businessReducer  } from './reducers/businessReducer';
 import { googleMapReducer } from './reducers/googleMapReducer';
-import { searchReducer }    from './reducers/searchReducer';
+import { routeReducer     } from './reducers/routeReducer';
+import { searchReducer    } from './reducers/searchReducer';
 
 
 const loggerMiddleware = createLogger();
 
 
-let initialAppState = {
+const initialAppState = {
+  business: {},
   googleMap: {
     center: {
       lat: 40.74,
@@ -26,6 +29,10 @@ let initialAppState = {
     },
     mapTypeControl: false,
     zoom: 14
+  },
+  route: {
+    type: null,
+    id: ''
   },
   search: {
     results: {
@@ -35,7 +42,12 @@ let initialAppState = {
 };
 
 let store = createStore(
-  combineReducers({ googleMap: googleMapReducer, search: searchReducer }),
+  combineReducers({
+    business : businessReducer,
+    googleMap: googleMapReducer,
+    route    : routeReducer,
+    search   : searchReducer
+  }),
   initialAppState,
   applyMiddleware(
     thunkMiddleware,

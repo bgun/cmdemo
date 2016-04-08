@@ -1,8 +1,6 @@
 import qs from 'qs';
 
-export function executeSearch(query) {
-
-  console.log("execute search");
+export default function executeSearch(query) {
 
   return (dispatch, getState) => {
 
@@ -31,16 +29,13 @@ export function executeSearch(query) {
       query: query
     });
 
-    console.log("fetching");
-
     fetch(url)
       .then(response => response.json())
       .then(json => {
         dispatch({
           type: 'RECEIVE_SEARCH',
           results: json
-        })
-        console.log(json);
+        });
       });
   };
 
