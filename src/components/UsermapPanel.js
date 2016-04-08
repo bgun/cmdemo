@@ -22,6 +22,7 @@ export default class UsermapPanel extends Component {
             </li>
           ) }
         </ul>
+        <span className="clear" onClick={ () => this.props.handleClose() }>x</span>
       </div>
     )
   }

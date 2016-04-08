@@ -29559,7 +29559,14 @@
 	        this._googleMaps = nextProps.googleMaps;
 	        this.createMapIfNeeded();
 	      }
-	      this._markersNeedRefresh = nextProps.searchResults !== this.props.searchResults;
+
+	      this._markersNeedRefresh = false;
+	      if (nextProps.searchResults !== this.props.searchResults) {
+	        this._markersNeedRefresh = true;
+	      }
+	      if (nextProps.activeUsermap && nextProps.activeUsermap !== this.props.activeUsermap) {
+	        this._markersNeedRefresh = true;
+	      }
 	    }
 	  }, {
 	    key: 'createMapIfNeeded',
@@ -29578,28 +29585,48 @@
 
 	      var googleMaps = this._googleMaps;
 
+	      // remove all existing markers
 	      if (this._markerObjects) {
 	        this._markerObjects.forEach(function (obj) {
 	          obj.marker.setMap(null);
 	        });
 	      }
 
-	      this._markerObjects = this.props.searchResults.filter(_isBusiness).map(function (sr, index) {
-	        var marker = new googleMaps.Marker({
-	          position: { lat: sr.lat, lng: sr.lon },
-	          map: _this2._map,
-	          title: 'Hello World!'
-	        });
-	        var popup = new googleMaps.InfoWindow({
-	          content: sr.name
-	        });
+	      if (this.props.activeUsermap) {
+	        var markers = this.props.activeUsermap.markers || [];
+	        console.log("markers", markers);
+	        this._markerObjects = markers.map(function (m, index) {
+	          var marker = new googleMaps.Marker({
+	            position: { lat: m.business.lat, lng: m.business.lon },
+	            map: _this2._map
+	          });
+	          var popup = new googleMaps.InfoWindow({
+	            content: m.business.name
+	          });
 
-	        var obj = { marker: marker, popup: popup };
-	        marker.addListener('click', function () {
-	          return _this2.openMarker(index);
+	          var obj = { marker: marker, popup: popup };
+	          marker.addListener('click', function () {
+	            return _this2.openMarker(index);
+	          });
+	          return obj;
 	        });
-	        return obj;
-	      });
+	      } else if (this.props.searchResults) {
+	        this._markerObjects = this.props.searchResults.filter(_isBusiness).map(function (sr, index) {
+	          var marker = new googleMaps.Marker({
+	            position: { lat: sr.lat, lng: sr.lon },
+	            map: _this2._map
+	          });
+	          var popup = new googleMaps.InfoWindow({
+	            content: sr.name
+	          });
+
+	          var obj = { marker: marker, popup: popup };
+	          marker.addListener('click', function () {
+	            return _this2.openMarker(index);
+	          });
+	          return obj;
+	        });
+	      }
 	    }
 	  }, {
 	    key: 'openMarker',
@@ -30998,6 +31025,8 @@
 	  _createClass(UsermapPanel, [{
 	    key: 'render',
 	    value: function render() {
+	      var _this2 = this;
+
 	      var usermap = this.props.usermap;
 
 	      var loadingClass = '';
@@ -31034,6 +31063,13 @@
 	              )
 	            );
 	          })
+	        ),
+	        _react2.default.createElement(
+	          'span',
+	          { className: 'clear', onClick: function onClick() {
+	              return _this2.props.handleClose();
+	            } },
+	          'x'
 	        )
 	      );
 	    }

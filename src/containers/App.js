@@ -34,7 +34,14 @@ class App extends Component {
       this._googleMaps = nextProps.googleMaps;
       this.createMapIfNeeded();
     }
-    this._markersNeedRefresh = (nextProps.searchResults !== this.props.searchResults);
+
+    this._markersNeedRefresh = false;
+    if (nextProps.searchResults !== this.props.searchResults) {
+      this._markersNeedRefresh = true;
+    }
+    if (nextProps.activeUsermap && (nextProps.activeUsermap !== this.props.activeUsermap)) {
+      this._markersNeedRefresh = true;
+    }
   }
 
   createMapIfNeeded() {
@@ -49,26 +56,44 @@ class App extends Component {
   updateMap() {
     let googleMaps = this._googleMaps;
 
+    // remove all existing markers
     if (this._markerObjects) {
       this._markerObjects.forEach(obj => {
         obj.marker.setMap(null);
       });
     }
 
-    this._markerObjects = this.props.searchResults.filter(_isBusiness).map((sr, index) => {
-      let marker = new googleMaps.Marker({
-        position: { lat: sr.lat, lng: sr.lon },
-        map: this._map,
-        title: 'Hello World!'
-      });
-      let popup = new googleMaps.InfoWindow({
-        content: sr.name
-      });
+    if (this.props.activeUsermap) {
+      let markers = this.props.activeUsermap.markers || [];
+      console.log("markers", markers);
+      this._markerObjects = markers.map((m, index) => {
+        let marker = new googleMaps.Marker({
+          position: { lat: m.business.lat, lng: m.business.lon },
+          map: this._map
+        });
+        let popup = new googleMaps.InfoWindow({
+          content: m.business.name
+        });
 
-      let obj = { marker, popup };
-      marker.addListener('click', () => this.openMarker(index));
-      return obj;
-    });
+        let obj = { marker, popup };
+        marker.addListener('click', () => this.openMarker(index));
+        return obj;
+      });
+    } else if (this.props.searchResults) {
+      this._markerObjects = this.props.searchResults.filter(_isBusiness).map((sr, index) => {
+        let marker = new googleMaps.Marker({
+          position: { lat: sr.lat, lng: sr.lon },
+          map: this._map
+        });
+        let popup = new googleMaps.InfoWindow({
+          content: sr.name
+        });
+
+        let obj = { marker, popup };
+        marker.addListener('click', () => this.openMarker(index));
+        return obj;
+      });
+    }
   }
 
   openMarker(index) {
