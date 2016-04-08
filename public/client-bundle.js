@@ -78,9 +78,9 @@
 
 	var _searchReducer = __webpack_require__(474);
 
-	var _usermapReducer = __webpack_require__(491);
+	var _usermapReducer = __webpack_require__(475);
 
-	var _App = __webpack_require__(475);
+	var _App = __webpack_require__(476);
 
 	var _App2 = _interopRequireDefault(_App);
 
@@ -29483,6 +29483,30 @@
 
 /***/ },
 /* 475 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.usermapReducer = usermapReducer;
+	function usermapReducer(state, action) {
+
+	  switch (action.type) {
+	    case 'RECEIVE_USERMAP':
+	      var obj = {};
+	      obj[action.map_id] = action.usermap;
+	      return Object.assign({}, state, obj);
+	      break;
+	    default:
+	      return state || {};
+	      break;
+	  }
+	}
+
+/***/ },
+/* 476 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29499,23 +29523,23 @@
 
 	var _reactRedux = __webpack_require__(450);
 
-	var _BusinessPanel = __webpack_require__(476);
+	var _BusinessPanel = __webpack_require__(477);
 
 	var _BusinessPanel2 = _interopRequireDefault(_BusinessPanel);
 
-	var _SearchInput = __webpack_require__(477);
+	var _SearchInput = __webpack_require__(478);
 
 	var _SearchInput2 = _interopRequireDefault(_SearchInput);
 
-	var _SearchResults = __webpack_require__(478);
+	var _SearchResults = __webpack_require__(479);
 
 	var _SearchResults2 = _interopRequireDefault(_SearchResults);
 
-	var _UsermapPanel = __webpack_require__(492);
+	var _UsermapPanel = __webpack_require__(480);
 
 	var _UsermapPanel2 = _interopRequireDefault(_UsermapPanel);
 
-	var _actions = __webpack_require__(479);
+	var _actions = __webpack_require__(481);
 
 	var _actions2 = _interopRequireDefault(_actions);
 
@@ -29527,7 +29551,7 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	__webpack_require__(486);
+	__webpack_require__(489);
 
 	var _isBusiness = function _isBusiness(obj) {
 	  return obj.type === 1 && obj.bid;
@@ -29723,7 +29747,7 @@
 	})(App);
 
 /***/ },
-/* 476 */
+/* 477 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29767,18 +29791,28 @@
 	        loadingClass = 'loading';
 	      }
 
+	      var photo = null;
+	      if (business.external_meta && business.external_meta.photos) {
+	        photo = business.external_meta.photos[0] || {};
+	      }
+
 	      return _react2.default.createElement(
 	        'div',
 	        { className: 'businessPanel ' + loadingClass },
+	        photo ? _react2.default.createElement('div', { className: 'photo', style: { backgroundImage: "url(" + photo.url + ");" } }) : null,
 	        _react2.default.createElement(
-	          'h1',
-	          null,
-	          business.name
-	        ),
-	        _react2.default.createElement(
-	          'address',
-	          null,
-	          business.address
+	          'div',
+	          { className: 'inner' },
+	          _react2.default.createElement(
+	            'h1',
+	            null,
+	            business.name
+	          ),
+	          _react2.default.createElement(
+	            'address',
+	            null,
+	            business.address
+	          )
 	        ),
 	        _react2.default.createElement(
 	          'span',
@@ -29801,7 +29835,7 @@
 	};
 
 /***/ },
-/* 477 */
+/* 478 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29871,7 +29905,7 @@
 	};
 
 /***/ },
-/* 478 */
+/* 479 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29951,7 +29985,7 @@
 	};
 
 /***/ },
-/* 479 */
+/* 480 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29960,15 +29994,110 @@
 	  value: true
 	});
 
-	var _executeSearch = __webpack_require__(480);
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(293);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var UsermapPanel = function (_Component) {
+	  _inherits(UsermapPanel, _Component);
+
+	  function UsermapPanel() {
+	    _classCallCheck(this, UsermapPanel);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(UsermapPanel).apply(this, arguments));
+	  }
+
+	  _createClass(UsermapPanel, [{
+	    key: 'render',
+	    value: function render() {
+	      var _this2 = this;
+
+	      var usermap = this.props.usermap;
+
+	      var loadingClass = '';
+	      if (usermap._loading) {
+	        loadingClass = 'loading';
+	      }
+
+	      var markers = usermap.markers || [];
+
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'usermapPanel ' + loadingClass },
+	        _react2.default.createElement(
+	          'h1',
+	          null,
+	          usermap.name
+	        ),
+	        _react2.default.createElement(
+	          'ul',
+	          null,
+	          markers.map(function (m, index) {
+	            return _react2.default.createElement(
+	              'li',
+	              { key: m.marker_id },
+	              _react2.default.createElement(
+	                'h4',
+	                null,
+	                m.business.name
+	              ),
+	              _react2.default.createElement(
+	                'address',
+	                null,
+	                m.business.address
+	              )
+	            );
+	          })
+	        ),
+	        _react2.default.createElement(
+	          'span',
+	          { className: 'clear', onClick: function onClick() {
+	              return _this2.props.handleClose();
+	            } },
+	          'x'
+	        )
+	      );
+	    }
+	  }]);
+
+	  return UsermapPanel;
+	}(_react.Component);
+
+	exports.default = UsermapPanel;
+
+	UsermapPanel.propTypes = {
+	  usermap: _react.PropTypes.object
+	};
+
+/***/ },
+/* 481 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _executeSearch = __webpack_require__(482);
 
 	var _executeSearch2 = _interopRequireDefault(_executeSearch);
 
-	var _fetchBusiness = __webpack_require__(485);
+	var _fetchBusiness = __webpack_require__(487);
 
 	var _fetchBusiness2 = _interopRequireDefault(_fetchBusiness);
 
-	var _fetchUsermap = __webpack_require__(490);
+	var _fetchUsermap = __webpack_require__(488);
 
 	var _fetchUsermap2 = _interopRequireDefault(_fetchUsermap);
 
@@ -29988,7 +30117,7 @@
 	};
 
 /***/ },
-/* 480 */
+/* 482 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -29998,7 +30127,7 @@
 	});
 	exports.default = executeSearch;
 
-	var _qs = __webpack_require__(481);
+	var _qs = __webpack_require__(483);
 
 	var _qs2 = _interopRequireDefault(_qs);
 
@@ -30045,13 +30174,13 @@
 	}
 
 /***/ },
-/* 481 */
+/* 483 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Stringify = __webpack_require__(482);
-	var Parse = __webpack_require__(484);
+	var Stringify = __webpack_require__(484);
+	var Parse = __webpack_require__(486);
 
 	module.exports = {
 	    stringify: Stringify,
@@ -30060,12 +30189,12 @@
 
 
 /***/ },
-/* 482 */
+/* 484 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Utils = __webpack_require__(483);
+	var Utils = __webpack_require__(485);
 
 	var internals = {
 	    delimiter: '&',
@@ -30197,7 +30326,7 @@
 
 
 /***/ },
-/* 483 */
+/* 485 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -30365,12 +30494,12 @@
 
 
 /***/ },
-/* 484 */
+/* 486 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Utils = __webpack_require__(483);
+	var Utils = __webpack_require__(485);
 
 	var internals = {
 	    delimiter: '&',
@@ -30535,7 +30664,7 @@
 
 
 /***/ },
-/* 485 */
+/* 487 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -30545,7 +30674,7 @@
 	});
 	exports.default = fetchBusiness;
 
-	var _qs = __webpack_require__(481);
+	var _qs = __webpack_require__(483);
 
 	var _qs2 = _interopRequireDefault(_qs);
 
@@ -30579,23 +30708,62 @@
 	}
 
 /***/ },
-/* 486 */
+/* 488 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = fetchUsermap;
+	function fetchUsermap(map_id) {
+
+	  return function (dispatch, getState) {
+
+	    var usermap_url = "https://ca.citymaps.com/v2/map/" + map_id;
+	    var markers_url = "https://ca.citymaps.com/v3/marker/map/" + map_id;
+
+	    dispatch({
+	      type: 'REQUEST_USERMAP',
+	      map_id: map_id
+	    });
+
+	    Promise.all([fetch(usermap_url).then(function (resp) {
+	      return resp.json();
+	    }), fetch(markers_url).then(function (resp) {
+	      return resp.json();
+	    })]).then(function (responses) {
+	      var usermap = responses[0].map;
+	      usermap.markers = responses[1].markers;
+	      console.log(responses);
+	      dispatch({
+	        type: 'RECEIVE_USERMAP',
+	        map_id: map_id,
+	        usermap: usermap
+	      });
+	    });
+	  };
+	}
+
+/***/ },
+/* 489 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(487);
+	var content = __webpack_require__(490);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(489)(content, {});
+	var update = __webpack_require__(492)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../node_modules/css-loader/index.js!./App.css", function() {
-				var newContent = require("!!./../node_modules/css-loader/index.js!./App.css");
+			module.hot.accept("!!./../node_modules/css-loader/index.js!./../node_modules/less-loader/index.js!./App.less", function() {
+				var newContent = require("!!./../node_modules/css-loader/index.js!./../node_modules/less-loader/index.js!./App.less");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -30605,21 +30773,21 @@
 	}
 
 /***/ },
-/* 487 */
+/* 490 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(488)();
+	exports = module.exports = __webpack_require__(491)();
 	// imports
 
 
 	// module
-	exports.push([module.id, "* {\n    box-sizing: border-box;\n    margin: 0;\n    padding: 0;\n}\n\nhtml, body {\n    font-family: sans-serif;\n}\n\nul, li {\n    list-style: none;\n}\n\n.map-container {\n    background: #DDD;\n    height: 100%;\n    position: fixed !important;\n        left: 0;\n        top: 0;\n    width: 100%;\n    z-index: 1;\n}\n\n.content {\n    position: absolute;\n        top: 0;\n        left: 0;\n        right: 0;\n    z-index: 2;\n}\n.content .searchInput {\n    background: white;\n    border: 0;\n    box-shadow: 0 0 10px rgba(0,0,0,0.2);\n    margin: 0 auto;\n    max-width: 500px;\n    width: 90%;\n    position: relative;\n        top: 10px;\n}\n.content .searchInput input {\n    border: none;\n    font-size: 16px;\n    height: 40px;\n    margin: 0 auto;\n    outline: none;\n    padding: 0 10px;\n    max-width: 500px;\n    width: 100%;\n}\n\n.searchResults {\n    background: white;\n    overflow-y: scroll;\n    position: fixed;\n      bottom: 10px;\n      left: 10px;\n      right: 10px;\n    transition: all 0.2s;\n    z-index: 3;\n}\n.searchResults.empty {\n    bottom: -380px;\n}\n.searchResults ul {\n    height: 400px;\n}\n\n.search-item {\n    border-top: 1px solid #EEE;\n    margin: 10px;\n    padding: 10px;\n}\n.search-item:first-child {\n    border-top: none;\n}\n\n.businessPanel {\n    background: white;\n    overflow-y: scroll;\n    padding: 20px;\n    position: fixed;\n      top: 60px;\n      bottom: 10px;\n      left: 10px;\n      right: 10px;\n    transition: all 0.2s;\n    z-index: 4\n}\n.businessPanel .clear {\n    border: 1px solid #DDD;\n    border-radius: 10px;\n    cursor: pointer;\n    display: block;\n    font-size: 20px;\n    height: 50px;\n    line-height: 50px;\n    position: absolute;\n      top: 10px;\n      right: 10px;\n    text-align: center;\n    width: 50px;\n}\n.businessPanel.loading {\n    left: 100%;\n}\n\n.usermapPanel {\n    background: white;\n    height: 500px;\n    overflow-y: scroll;\n    padding: 20px;\n    position: fixed;\n      bottom: 10px;\n      left: 10px;\n      right: 10px;\n    transition: all 0.2s;\n    z-index: 4\n}\n.usermapPanel .clear {\n    border: 1px solid #DDD;\n    border-radius: 10px;\n    cursor: pointer;\n    display: block;\n    font-size: 20px;\n    height: 50px;\n    line-height: 50px;\n    position: absolute;\n    top: 10px;\n    right: 10px;\n    text-align: center;\n    width: 50px;\n}\n.usermapPanel.loading {\n    left: 100%;\n}", ""]);
+	exports.push([module.id, "* {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n}\nhtml,\nbody {\n  font-family: sans-serif;\n}\nul,\nli {\n  list-style: none;\n}\n.container-panel {\n  background: white;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);\n}\n.map-container {\n  background: #DDD;\n  height: 100%;\n  position: fixed !important;\n  left: 0;\n  top: 0;\n  width: 100%;\n  z-index: 1;\n}\n.content {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  z-index: 2;\n}\n.content .searchInput {\n  background: white;\n  border: 0;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);\n  margin: 0 auto;\n  max-width: 500px;\n  width: 90%;\n  position: relative;\n  top: 10px;\n}\n.content .searchInput input {\n  border: none;\n  font-size: 16px;\n  height: 40px;\n  margin: 0 auto;\n  outline: none;\n  padding: 0 10px;\n  max-width: 500px;\n  width: 100%;\n}\n.searchResults {\n  background: white;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);\n  overflow-y: scroll;\n  position: fixed;\n  bottom: 10px;\n  left: 10px;\n  right: 10px;\n  transition: all 0.2s;\n  z-index: 3;\n}\n.searchResults.empty {\n  bottom: -380px;\n}\n.searchResults ul {\n  height: 400px;\n}\n.search-item {\n  border-top: 1px solid #EEE;\n  margin: 10px;\n  padding: 10px;\n}\n.search-item:first-child {\n  border-top: none;\n}\n.clear {\n  background: white;\n  border: 1px solid #DDD;\n  border-radius: 4px;\n  cursor: pointer;\n  display: block;\n  font-size: 20px;\n  height: 30px;\n  line-height: 30px;\n  position: absolute;\n  top: 10px;\n  right: 10px;\n  text-align: center;\n  width: 30px;\n}\n.businessPanel {\n  background: white;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);\n  overflow-y: scroll;\n  padding: 0;\n  position: fixed;\n  top: 60px;\n  bottom: 10px;\n  left: 10px;\n  right: 10px;\n  transition: all 0.2s;\n  z-index: 4;\n}\n.businessPanel .inner {\n  padding: 20px;\n}\n.businessPanel.loading {\n  left: 100%;\n}\n.businessPanel .photo {\n  background-color: #DDD;\n  background-position: center;\n  background-size: cover;\n  min-height: 300px;\n}\n.usermapPanel {\n  background: white;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);\n  height: 500px;\n  overflow-y: scroll;\n  padding: 20px;\n  position: fixed;\n  bottom: 10px;\n  left: 10px;\n  right: 10px;\n  transition: all 0.2s;\n  z-index: 4;\n}\n.usermapPanel.loading {\n  left: 100%;\n}\n", ""]);
 
 	// exports
 
 
 /***/ },
-/* 488 */
+/* 491 */
 /***/ function(module, exports) {
 
 	/*
@@ -30675,7 +30843,7 @@
 
 
 /***/ },
-/* 489 */
+/* 492 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -30925,164 +31093,6 @@
 			URL.revokeObjectURL(oldSrc);
 	}
 
-
-/***/ },
-/* 490 */
-/***/ function(module, exports) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = fetchUsermap;
-	function fetchUsermap(map_id) {
-
-	  return function (dispatch, getState) {
-
-	    var usermap_url = "https://ca.citymaps.com/v2/map/" + map_id;
-	    var markers_url = "https://ca.citymaps.com/v3/marker/map/" + map_id;
-
-	    dispatch({
-	      type: 'REQUEST_USERMAP',
-	      map_id: map_id
-	    });
-
-	    Promise.all([fetch(usermap_url).then(function (resp) {
-	      return resp.json();
-	    }), fetch(markers_url).then(function (resp) {
-	      return resp.json();
-	    })]).then(function (responses) {
-	      var usermap = responses[0].map;
-	      usermap.markers = responses[1].markers;
-	      console.log(responses);
-	      dispatch({
-	        type: 'RECEIVE_USERMAP',
-	        map_id: map_id,
-	        usermap: usermap
-	      });
-	    });
-	  };
-	}
-
-/***/ },
-/* 491 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.usermapReducer = usermapReducer;
-	function usermapReducer(state, action) {
-
-	  switch (action.type) {
-	    case 'RECEIVE_USERMAP':
-	      var obj = {};
-	      obj[action.map_id] = action.usermap;
-	      return Object.assign({}, state, obj);
-	      break;
-	    default:
-	      return state || {};
-	      break;
-	  }
-	}
-
-/***/ },
-/* 492 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(293);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var UsermapPanel = function (_Component) {
-	  _inherits(UsermapPanel, _Component);
-
-	  function UsermapPanel() {
-	    _classCallCheck(this, UsermapPanel);
-
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(UsermapPanel).apply(this, arguments));
-	  }
-
-	  _createClass(UsermapPanel, [{
-	    key: 'render',
-	    value: function render() {
-	      var _this2 = this;
-
-	      var usermap = this.props.usermap;
-
-	      var loadingClass = '';
-	      if (usermap._loading) {
-	        loadingClass = 'loading';
-	      }
-
-	      var markers = usermap.markers || [];
-
-	      return _react2.default.createElement(
-	        'div',
-	        { className: 'usermapPanel ' + loadingClass },
-	        _react2.default.createElement(
-	          'h1',
-	          null,
-	          usermap.name
-	        ),
-	        _react2.default.createElement(
-	          'ul',
-	          null,
-	          markers.map(function (m, index) {
-	            return _react2.default.createElement(
-	              'li',
-	              { key: m.marker_id },
-	              _react2.default.createElement(
-	                'h4',
-	                null,
-	                m.business.name
-	              ),
-	              _react2.default.createElement(
-	                'address',
-	                null,
-	                m.business.address
-	              )
-	            );
-	          })
-	        ),
-	        _react2.default.createElement(
-	          'span',
-	          { className: 'clear', onClick: function onClick() {
-	              return _this2.props.handleClose();
-	            } },
-	          'x'
-	        )
-	      );
-	    }
-	  }]);
-
-	  return UsermapPanel;
-	}(_react.Component);
-
-	exports.default = UsermapPanel;
-
-	UsermapPanel.propTypes = {
-	  usermap: _react.PropTypes.object
-	};
 
 /***/ }
 /******/ ]);

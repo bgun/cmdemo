@@ -8,7 +8,7 @@ import UsermapPanel  from '../components/UsermapPanel';
 
 import Actions from '../actions/actions';
 
-require('../../css/App.css');
+require('../../css/App.less');
 
 
 let _isBusiness = function(obj) {
