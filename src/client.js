@@ -6,10 +6,15 @@ import 'isomorphic-fetch';
 import React           from 'react';
 import ReactDOM        from 'react-dom';
 import { Provider }    from 'react-redux';
+import { Router, Route, Link, browserHistory } from 'react-router';
 
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import createLogger     from 'redux-logger';
 import thunkMiddleware  from 'redux-thunk';
+
+import BusinessContainer from './containers/BusinessContainer';
+import SearchContainer   from './containers/SearchContainer';
+import UsermapContainer  from './containers/UsermapContainer';
 
 import { businessReducer  } from './reducers/businessReducer';
 import { googleMapReducer } from './reducers/googleMapReducer';
@@ -60,24 +65,24 @@ let store = createStore(
 
 global.store = store;
 
+
 import App from './containers/App';
 
-let googleMaps = null;
 
-let render = () => {
-  ReactDOM.render(
-    <Provider store={ store }>
-      <App googleMaps={ googleMaps } />
-    </Provider>,
-    document.getElementById('root')
-  );
-};
+ReactDOM.render(
+  <Provider store={ store }>
+    <Router>
+      <Route path="/" component={ App }>
+        <Route path="search/:query" component={ SearchContainer } />
+        <Route path="business/:bid" component={ BusinessContainer } />
+        <Route path="map/:map_id"   component={ UsermapContainer } />
+      </Route>
+    </Router>
+  </Provider>,
+  document.getElementById('root')
+);
 
 // global hook for Google Maps async
 global.initMap = () => {
-  googleMaps = google.maps;
-  render();
+  global.googleMaps = google.maps;
 };
-
-render();
-

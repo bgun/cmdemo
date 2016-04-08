@@ -14,6 +14,15 @@ ul, li {
   list-style: none;
 }
 
+a {
+  color: #555;
+  text-decoration: none;
+
+  &:hover {
+    color: #58F;
+  }
+}
+
 
 .map-container {
   background: #DDD;
@@ -25,24 +34,24 @@ ul, li {
   z-index: 1;
 }
 
-.content {
+.searchInput {
   position: absolute;
     top: 0;
     left: 0;
     right: 0;
   z-index: 2;
 
-  .searchInput {
-    background: white;
+  .inner {
+    .container-panel;
     border: 0;
-    box-shadow: 0 0 10px rgba(0,0,0,0.2);
     margin: 0 auto;
     max-width: 500px;
     width: 90%;
     position: relative;
       top: 10px;
   }
-  .searchInput input {
+
+  input {
     border: none;
     font-size: 16px;
     height: 40px;
@@ -54,8 +63,16 @@ ul, li {
   }
 }
 
+.content {
+  position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+  z-index: 2;
+}
 
-.clear {
+
+.btn-clear {
   background: white;
   border: 1px solid #DDD;
   border-radius: 4px;

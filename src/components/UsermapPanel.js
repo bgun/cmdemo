@@ -1,5 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 
+import BusinessItem from './BusinessItem';
+
 require('../../css/UsermapPanel.less');
 
 
@@ -10,8 +12,7 @@ class MarkerItem extends Component {
 
     return (
       <li className="markerItem" key={ marker.marker_id }>
-        <h4>{ business.name }</h4>
-        <address>{ business.address }</address>
+        <BusinessItem business={ business } />
       </li>
     );
   }
@@ -35,7 +36,7 @@ export default class UsermapPanel extends Component {
         <ul>
           { markers.map((m, index) => <MarkerItem marker={ m } /> ) }
         </ul>
-        <span className="clear" onClick={ () => this.props.handleClose() }>x</span>
+        <a className="btn-clear" href="/">x</a>
       </div>
     )
   }

@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+import { Link } from 'react-router';
 
 import BusinessComment from './BusinessComment';
 
@@ -9,23 +10,23 @@ export default class BusinessPanel extends Component {
 
   render() {
     const { business } = this.props;
-    let loadingClass = '';
-    if (business._loading) {
-      loadingClass = 'loading';
+
+    if (!business) {
+      return null;
     }
 
     let photo = null;
-    if (business.external_meta && business.external_meta.photos) {
+    if (business && business.external_meta && business.external_meta.photos) {
       photo = business.external_meta.photos[0] || {};
     }
     let tips = null;
-    if (business.external_meta && business.external_meta.tips) {
+    if (business && business.external_meta && business.external_meta.tips) {
       tips = business.external_meta.tips;
     }
 
     return (
-      <div className={ 'businessPanel '+loadingClass }>
-        { photo ? <div className="photo" style={{ backgroundImage: "url("+photo.url+");" }} /> : null }
+      <div className='businessPanel'>
+        { photo ? <div className="photo" style={{ backgroundImage: "url("+photo.url+")" }} /> : null }
         <div className="inner">
           <h1>{ business.name }</h1>
           <address>{ business.address }</address>
@@ -35,11 +36,11 @@ export default class BusinessPanel extends Component {
           <div className="comments">
             <h3>Comments</h3>
             <ul>
-              { tips ? tips.map(tip => <BusinessComment comment={ tip } /> ) : null }
+              { tips ? tips.map((tip, index) => <BusinessComment key={ index } comment={ tip } /> ) : null }
             </ul>
           </div>
         </div>
-        <span className="clear" onClick={ () => this.props.handleClose() }>x</span>
+        <Link className="btn-clear" to="/">x</Link>
       </div>
     )
   }

@@ -36,15 +36,10 @@ class App extends Component {
 
   constructor(props) {
     super();
-    console.log("props", props);
   }
 
   componentWillReceiveProps(nextProps) {
     // This cannot go in componentDidMount because we might mount before Google Maps is initialized
-    if (nextProps.googleMaps) {
-      this._googleMaps = nextProps.googleMaps;
-      this.createMapIfNeeded();
-    }
 
     this._markersNeedRefresh = false;
     if (nextProps.searchResults !== this.props.searchResults) {
@@ -55,13 +50,27 @@ class App extends Component {
     }
   }
 
+  componentDidMount() {
+    let checkForGoogleMaps = () => {
+      console.log("checking for google maps");
+      setTimeout(() => {
+        if (global.googleMaps) {
+          this._googleMaps = global.googleMaps;
+          this.createMapIfNeeded();
+        } else {
+          checkForGoogleMaps();
+        }
+      }, 100);
+    };
+    checkForGoogleMaps();
+  }
+
   createMapIfNeeded() {
     let googleMaps = this._googleMaps;
     if (!this._map) {
       let transitLayer = new googleMaps.TransitLayer();
       this._map = new googleMaps.Map(this.refs.map, this.props.googleMapOptions);
       transitLayer.setMap(this._map);
-
       this._map.addListener('dragend', () => this.props.handleMapMove(this._map));
     }
   }
@@ -128,20 +137,7 @@ class App extends Component {
     }
   }
 
-  clickItem(index) {
-    let item = this.props.searchResults[index];
-    if (_isBusiness(item)) {
-      this.openMarker(index);
-      this.props.handleLoadBusiness(item.bid);
-    } else if (_isUsermap(item)) {
-      this.props.handleLoadUsermap(item.map_id);
-    } else {
-      console.log("user or map", item);
-    }
-  }
-
   render() {
-
     if (this._markersNeedRefresh) {
       this.updateMap();
     }
@@ -149,21 +145,15 @@ class App extends Component {
     return (
       <div>
         <div className='map-container' ref="map"></div>
+        <SearchInput handleChange={ query => this.props.handleSearchQuery(query) } value={ this.props.searchQuery } />
         <div className='content'>
-          <SearchInput handleChange={ query => this.props.handleSearchQuery(query) } />
-          <SearchResults items={ this.props.searchResults } onItemClick={ index => this.clickItem(index) } />
-          { this.props.activeBusiness ? <BusinessPanel business={ this.props.activeBusiness } handleClose={ () => this.props.handleClearRoute() } /> : null }
-          { this.props.activeUsermap  ? <UsermapPanel  usermap ={ this.props.activeUsermap  } handleClose={ () => this.props.handleClearRoute() } /> : null }
+          { this.props.children }
         </div>
       </div>
     )
   }
 }
 App.propTypes = {
-  handleClearRoute  : PropTypes.func.isRequired,
-  handleLoadBusiness: PropTypes.func.isRequired,
-  handleLoadUsermap : PropTypes.func.isRequired,
-  handleSearchQuery : PropTypes.func.isRequired,
   googleMaps: PropTypes.any
 };
 
@@ -174,13 +164,11 @@ export default connect(
     activeUsermap    : appState.route.type === 'usermap'  ? (appState.usermaps[appState.route.id] || { _loading: true }) : null,
     googleMapOptions : appState.googleMap,
     searchQuery      : appState.search.query,
-    searchResults    : appState.search.results.items || [],
+    searchResults    : appState.search.results
   }),
   dispatch => ({
     handleClearRoute   : ()     => dispatch(Actions.clearRoute()),
     handleMapMove      : map    => dispatch(Actions.mapUpdate(map)),
-    handleLoadBusiness : bid    => dispatch(Actions.fetchBusiness(bid)),
-    handleLoadUsermap  : map_id => dispatch(Actions.fetchUsermap(map_id)),
     handleSearchQuery  : query  => dispatch(Actions.executeSearch(query))
   })
 )(App);
