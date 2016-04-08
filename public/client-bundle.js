@@ -70,11 +70,11 @@
 
 	var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 
-	var _googleMapReducer = __webpack_require__(484);
+	var _googleMapReducer = __webpack_require__(471);
 
-	var _searchReducer = __webpack_require__(483);
+	var _searchReducer = __webpack_require__(472);
 
-	var _App = __webpack_require__(472);
+	var _App = __webpack_require__(473);
 
 	var _App2 = _interopRequireDefault(_App);
 
@@ -29344,8 +29344,58 @@
 	}
 
 /***/ },
-/* 471 */,
+/* 471 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.googleMapReducer = googleMapReducer;
+	function googleMapReducer(state, action) {
+
+	  switch (action.type) {
+	    case 'REQUEST_SEARCH':
+	      return state;
+	      break;
+	    default:
+	      return state || {};
+	      break;
+	  }
+	}
+
+/***/ },
 /* 472 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.searchReducer = searchReducer;
+	function searchReducer(state, action) {
+
+	  switch (action.type) {
+	    case 'REQUEST_SEARCH':
+	      return Object.assign({}, state, {
+	        query: action.query
+	      });
+	      break;
+	    case 'RECEIVE_SEARCH':
+	      return Object.assign({}, state, {
+	        results: action.results
+	      });
+	      break;
+	    default:
+	      return state || {};
+	      break;
+	  }
+	}
+
+/***/ },
+/* 473 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29362,15 +29412,15 @@
 
 	var _reactRedux = __webpack_require__(450);
 
-	var _SearchInput = __webpack_require__(473);
+	var _SearchInput = __webpack_require__(474);
 
 	var _SearchInput2 = _interopRequireDefault(_SearchInput);
 
-	var _SearchResults = __webpack_require__(485);
+	var _SearchResults = __webpack_require__(475);
 
 	var _SearchResults2 = _interopRequireDefault(_SearchResults);
 
-	var _actions = __webpack_require__(474);
+	var _actions = __webpack_require__(476);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -29380,7 +29430,7 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	__webpack_require__(479);
+	__webpack_require__(481);
 
 	var _isBusiness = function _isBusiness(obj) {
 	  return obj.type === 1;
@@ -29520,7 +29570,7 @@
 	})(App);
 
 /***/ },
-/* 473 */
+/* 474 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29590,7 +29640,89 @@
 	};
 
 /***/ },
-/* 474 */
+/* 475 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(293);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var SearchResults = function (_Component) {
+	  _inherits(SearchResults, _Component);
+
+	  function SearchResults() {
+	    _classCallCheck(this, SearchResults);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(SearchResults).apply(this, arguments));
+	  }
+
+	  _createClass(SearchResults, [{
+	    key: 'render',
+	    value: function render() {
+	      var _props = this.props;
+	      var onItemClick = _props.onItemClick;
+	      var items = _props.items;
+
+
+	      console.log(items);
+
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'searchResults ' + (items.length ? '' : 'empty') },
+	        _react2.default.createElement(
+	          'ul',
+	          null,
+	          items.map(function (result, index) {
+	            return _react2.default.createElement(
+	              'li',
+	              { key: index, className: 'search-item', onClick: function onClick(e) {
+	                  return onItemClick(index);
+	                } },
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'name' },
+	                result.name
+	              ),
+	              _react2.default.createElement(
+	                'address',
+	                null,
+	                result.address
+	              )
+	            );
+	          })
+	        )
+	      );
+	    }
+	  }]);
+
+	  return SearchResults;
+	}(_react.Component);
+
+	exports.default = SearchResults;
+
+	SearchResults.propTypes = {
+	  items: _react.PropTypes.array.isRequired,
+	  onItemClick: _react.PropTypes.func.isRequired
+	};
+
+/***/ },
+/* 476 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -29600,7 +29732,7 @@
 	});
 	exports.executeSearch = executeSearch;
 
-	var _qs = __webpack_require__(475);
+	var _qs = __webpack_require__(477);
 
 	var _qs2 = _interopRequireDefault(_qs);
 
@@ -29652,13 +29784,19 @@
 	}
 
 /***/ },
-/* 475 */
+/* 477 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	// Load modules
 
-	var Stringify = __webpack_require__(476);
-	var Parse = __webpack_require__(478);
+	var Stringify = __webpack_require__(478);
+	var Parse = __webpack_require__(480);
+
+
+	// Declare internals
+
+	var internals = {};
+
 
 	module.exports = {
 	    stringify: Stringify,
@@ -29667,52 +29805,60 @@
 
 
 /***/ },
-/* 476 */
+/* 478 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	// Load modules
 
-	var Utils = __webpack_require__(477);
+	var Utils = __webpack_require__(479);
+
+
+	// Declare internals
 
 	var internals = {
 	    delimiter: '&',
 	    arrayPrefixGenerators: {
-	        brackets: function (prefix) {
+	        brackets: function (prefix, key) {
+
 	            return prefix + '[]';
 	        },
 	        indices: function (prefix, key) {
+
 	            return prefix + '[' + key + ']';
 	        },
-	        repeat: function (prefix) {
+	        repeat: function (prefix, key) {
+
 	            return prefix;
 	        }
 	    },
-	    strictNullHandling: false,
-	    skipNulls: false,
-	    encode: true
+	    strictNullHandling: false
 	};
 
-	internals.stringify = function (object, prefix, generateArrayPrefix, strictNullHandling, skipNulls, encode, filter, sort, allowDots) {
-	    var obj = object;
+
+	internals.stringify = function (obj, prefix, generateArrayPrefix, strictNullHandling, filter) {
+
 	    if (typeof filter === 'function') {
 	        obj = filter(prefix, obj);
-	    } else if (Utils.isBuffer(obj)) {
-	        obj = String(obj);
-	    } else if (obj instanceof Date) {
+	    }
+	    else if (Utils.isBuffer(obj)) {
+	        obj = obj.toString();
+	    }
+	    else if (obj instanceof Date) {
 	        obj = obj.toISOString();
-	    } else if (obj === null) {
+	    }
+	    else if (obj === null) {
 	        if (strictNullHandling) {
-	            return encode ? Utils.encode(prefix) : prefix;
+	            return Utils.encode(prefix);
 	        }
 
 	        obj = '';
 	    }
 
-	    if (typeof obj === 'string' || typeof obj === 'number' || typeof obj === 'boolean') {
-	        if (encode) {
-	            return [Utils.encode(prefix) + '=' + Utils.encode(obj)];
-	        }
-	        return [prefix + '=' + obj];
+	    if (typeof obj === 'string' ||
+	        typeof obj === 'number' ||
+	        typeof obj === 'boolean') {
+
+	        return [Utils.encode(prefix) + '=' + Utils.encode(obj)];
 	    }
 
 	    var values = [];
@@ -29721,61 +29867,53 @@
 	        return values;
 	    }
 
-	    var objKeys;
-	    if (Array.isArray(filter)) {
-	        objKeys = filter;
-	    } else {
-	        var keys = Object.keys(obj);
-	        objKeys = sort ? keys.sort(sort) : keys;
-	    }
-
-	    for (var i = 0; i < objKeys.length; ++i) {
+	    var objKeys = Array.isArray(filter) ? filter : Object.keys(obj);
+	    for (var i = 0, il = objKeys.length; i < il; ++i) {
 	        var key = objKeys[i];
 
-	        if (skipNulls && obj[key] === null) {
-	            continue;
-	        }
-
 	        if (Array.isArray(obj)) {
-	            values = values.concat(internals.stringify(obj[key], generateArrayPrefix(prefix, key), generateArrayPrefix, strictNullHandling, skipNulls, encode, filter, sort, allowDots));
-	        } else {
-	            values = values.concat(internals.stringify(obj[key], prefix + (allowDots ? '.' + key : '[' + key + ']'), generateArrayPrefix, strictNullHandling, skipNulls, encode, filter, sort, allowDots));
+	            values = values.concat(internals.stringify(obj[key], generateArrayPrefix(prefix, key), generateArrayPrefix, strictNullHandling, filter));
+	        }
+	        else {
+	            values = values.concat(internals.stringify(obj[key], prefix + '[' + key + ']', generateArrayPrefix, strictNullHandling, filter));
 	        }
 	    }
 
 	    return values;
 	};
 
-	module.exports = function (object, opts) {
-	    var obj = object;
-	    var options = opts || {};
+
+	module.exports = function (obj, options) {
+
+	    options = options || {};
 	    var delimiter = typeof options.delimiter === 'undefined' ? internals.delimiter : options.delimiter;
 	    var strictNullHandling = typeof options.strictNullHandling === 'boolean' ? options.strictNullHandling : internals.strictNullHandling;
-	    var skipNulls = typeof options.skipNulls === 'boolean' ? options.skipNulls : internals.skipNulls;
-	    var encode = typeof options.encode === 'boolean' ? options.encode : internals.encode;
-	    var sort = typeof options.sort === 'function' ? options.sort : null;
-	    var allowDots = typeof options.allowDots === 'undefined' ? false : options.allowDots;
 	    var objKeys;
 	    var filter;
 	    if (typeof options.filter === 'function') {
 	        filter = options.filter;
 	        obj = filter('', obj);
-	    } else if (Array.isArray(options.filter)) {
+	    }
+	    else if (Array.isArray(options.filter)) {
 	        objKeys = filter = options.filter;
 	    }
 
 	    var keys = [];
 
-	    if (typeof obj !== 'object' || obj === null) {
+	    if (typeof obj !== 'object' ||
+	        obj === null) {
+
 	        return '';
 	    }
 
 	    var arrayFormat;
 	    if (options.arrayFormat in internals.arrayPrefixGenerators) {
 	        arrayFormat = options.arrayFormat;
-	    } else if ('indices' in options) {
+	    }
+	    else if ('indices' in options) {
 	        arrayFormat = options.indices ? 'indices' : 'repeat';
-	    } else {
+	    }
+	    else {
 	        arrayFormat = 'indices';
 	    }
 
@@ -29784,19 +29922,9 @@
 	    if (!objKeys) {
 	        objKeys = Object.keys(obj);
 	    }
-
-	    if (sort) {
-	        objKeys.sort(sort);
-	    }
-
-	    for (var i = 0; i < objKeys.length; ++i) {
+	    for (var i = 0, il = objKeys.length; i < il; ++i) {
 	        var key = objKeys[i];
-
-	        if (skipNulls && obj[key] === null) {
-	            continue;
-	        }
-
-	        keys = keys.concat(internals.stringify(obj[key], key, generateArrayPrefix, strictNullHandling, skipNulls, encode, filter, sort, allowDots));
+	        keys = keys.concat(internals.stringify(obj[key], key, generateArrayPrefix, strictNullHandling, filter));
 	    }
 
 	    return keys.join(delimiter);
@@ -29804,24 +29932,27 @@
 
 
 /***/ },
-/* 477 */
+/* 479 */
 /***/ function(module, exports) {
 
-	'use strict';
+	// Load modules
 
-	var hexTable = (function () {
-	    var array = new Array(256);
-	    for (var i = 0; i < 256; ++i) {
-	        array[i] = '%' + ((i < 16 ? '0' : '') + i.toString(16)).toUpperCase();
-	    }
 
-	    return array;
-	}());
+	// Declare internals
+
+	var internals = {};
+	internals.hexTable = new Array(256);
+	for (var h = 0; h < 256; ++h) {
+	    internals.hexTable[h] = '%' + ((h < 16 ? '0' : '') + h.toString(16)).toUpperCase();
+	}
+
 
 	exports.arrayToObject = function (source, options) {
+
 	    var obj = options.plainObjects ? Object.create(null) : {};
-	    for (var i = 0; i < source.length; ++i) {
+	    for (var i = 0, il = source.length; i < il; ++i) {
 	        if (typeof source[i] !== 'undefined') {
+
 	            obj[i] = source[i];
 	        }
 	    }
@@ -29829,7 +29960,9 @@
 	    return obj;
 	};
 
+
 	exports.merge = function (target, source, options) {
+
 	    if (!source) {
 	        return target;
 	    }
@@ -29837,37 +29970,47 @@
 	    if (typeof source !== 'object') {
 	        if (Array.isArray(target)) {
 	            target.push(source);
-	        } else if (typeof target === 'object') {
+	        }
+	        else if (typeof target === 'object') {
 	            target[source] = true;
-	        } else {
-	            return [target, source];
+	        }
+	        else {
+	            target = [target, source];
 	        }
 
 	        return target;
 	    }
 
 	    if (typeof target !== 'object') {
-	        return [target].concat(source);
+	        target = [target].concat(source);
+	        return target;
 	    }
 
-	    var mergeTarget = target;
-	    if (Array.isArray(target) && !Array.isArray(source)) {
-	        mergeTarget = exports.arrayToObject(target, options);
+	    if (Array.isArray(target) &&
+	        !Array.isArray(source)) {
+
+	        target = exports.arrayToObject(target, options);
 	    }
 
-		return Object.keys(source).reduce(function (acc, key) {
+	    var keys = Object.keys(source);
+	    for (var k = 0, kl = keys.length; k < kl; ++k) {
+	        var key = keys[k];
 	        var value = source[key];
 
-	        if (Object.prototype.hasOwnProperty.call(acc, key)) {
-	            acc[key] = exports.merge(acc[key], value, options);
-	        } else {
-	            acc[key] = value;
+	        if (!Object.prototype.hasOwnProperty.call(target, key)) {
+	            target[key] = value;
 	        }
-			return acc;
-	    }, mergeTarget);
+	        else {
+	            target[key] = exports.merge(target[key], value, options);
+	        }
+	    }
+
+	    return target;
 	};
 
+
 	exports.decode = function (str) {
+
 	    try {
 	        return decodeURIComponent(str.replace(/\+/g, ' '));
 	    } catch (e) {
@@ -29876,60 +30019,65 @@
 	};
 
 	exports.encode = function (str) {
+
 	    // This code was originally written by Brian White (mscdex) for the io.js core querystring library.
 	    // It has been adapted here for stricter adherence to RFC 3986
 	    if (str.length === 0) {
 	        return str;
 	    }
 
-	    var string = typeof str === 'string' ? str : String(str);
+	    if (typeof str !== 'string') {
+	        str = '' + str;
+	    }
 
 	    var out = '';
-	    for (var i = 0; i < string.length; ++i) {
-	        var c = string.charCodeAt(i);
+	    for (var i = 0, il = str.length; i < il; ++i) {
+	        var c = str.charCodeAt(i);
 
-	        if (
-	            c === 0x2D || // -
+	        if (c === 0x2D || // -
 	            c === 0x2E || // .
 	            c === 0x5F || // _
 	            c === 0x7E || // ~
 	            (c >= 0x30 && c <= 0x39) || // 0-9
 	            (c >= 0x41 && c <= 0x5A) || // a-z
-	            (c >= 0x61 && c <= 0x7A) // A-Z
-	        ) {
-	            out += string.charAt(i);
+	            (c >= 0x61 && c <= 0x7A)) { // A-Z
+
+	            out += str[i];
 	            continue;
 	        }
 
 	        if (c < 0x80) {
-	            out = out + hexTable[c];
+	            out += internals.hexTable[c];
 	            continue;
 	        }
 
 	        if (c < 0x800) {
-	            out = out + (hexTable[0xC0 | (c >> 6)] + hexTable[0x80 | (c & 0x3F)]);
+	            out += internals.hexTable[0xC0 | (c >> 6)] + internals.hexTable[0x80 | (c & 0x3F)];
 	            continue;
 	        }
 
 	        if (c < 0xD800 || c >= 0xE000) {
-	            out = out + (hexTable[0xE0 | (c >> 12)] + hexTable[0x80 | ((c >> 6) & 0x3F)] + hexTable[0x80 | (c & 0x3F)]);
+	            out += internals.hexTable[0xE0 | (c >> 12)] + internals.hexTable[0x80 | ((c >> 6) & 0x3F)] + internals.hexTable[0x80 | (c & 0x3F)];
 	            continue;
 	        }
 
-	        i += 1;
-	        c = 0x10000 + (((c & 0x3FF) << 10) | (string.charCodeAt(i) & 0x3FF));
-	        out += (hexTable[0xF0 | (c >> 18)] + hexTable[0x80 | ((c >> 12) & 0x3F)] + hexTable[0x80 | ((c >> 6) & 0x3F)] + hexTable[0x80 | (c & 0x3F)]);
+	        ++i;
+	        c = 0x10000 + (((c & 0x3FF) << 10) | (str.charCodeAt(i) & 0x3FF));
+	        out += internals.hexTable[0xF0 | (c >> 18)] + internals.hexTable[0x80 | ((c >> 12) & 0x3F)] + internals.hexTable[0x80 | ((c >> 6) & 0x3F)] + internals.hexTable[0x80 | (c & 0x3F)];
 	    }
 
 	    return out;
 	};
 
-	exports.compact = function (obj, references) {
-	    if (typeof obj !== 'object' || obj === null) {
+	exports.compact = function (obj, refs) {
+
+	    if (typeof obj !== 'object' ||
+	        obj === null) {
+
 	        return obj;
 	    }
 
-	    var refs = references || [];
+	    refs = refs || [];
 	    var lookup = refs.indexOf(obj);
 	    if (lookup !== -1) {
 	        return refs[lookup];
@@ -29940,7 +30088,7 @@
 	    if (Array.isArray(obj)) {
 	        var compacted = [];
 
-	        for (var i = 0; i < obj.length; ++i) {
+	        for (var i = 0, il = obj.length; i < il; ++i) {
 	            if (typeof obj[i] !== 'undefined') {
 	                compacted.push(obj[i]);
 	            }
@@ -29950,34 +30098,45 @@
 	    }
 
 	    var keys = Object.keys(obj);
-	    for (var j = 0; j < keys.length; ++j) {
-	        var key = keys[j];
+	    for (i = 0, il = keys.length; i < il; ++i) {
+	        var key = keys[i];
 	        obj[key] = exports.compact(obj[key], refs);
 	    }
 
 	    return obj;
 	};
 
+
 	exports.isRegExp = function (obj) {
+
 	    return Object.prototype.toString.call(obj) === '[object RegExp]';
 	};
 
+
 	exports.isBuffer = function (obj) {
-	    if (obj === null || typeof obj === 'undefined') {
+
+	    if (obj === null ||
+	        typeof obj === 'undefined') {
+
 	        return false;
 	    }
 
-	    return !!(obj.constructor && obj.constructor.isBuffer && obj.constructor.isBuffer(obj));
+	    return !!(obj.constructor &&
+	              obj.constructor.isBuffer &&
+	              obj.constructor.isBuffer(obj));
 	};
 
 
 /***/ },
-/* 478 */
+/* 480 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	// Load modules
 
-	var Utils = __webpack_require__(477);
+	var Utils = __webpack_require__(479);
+
+
+	// Declare internals
 
 	var internals = {
 	    delimiter: '&',
@@ -29986,15 +30145,16 @@
 	    parameterLimit: 1000,
 	    strictNullHandling: false,
 	    plainObjects: false,
-	    allowPrototypes: false,
-	    allowDots: false
+	    allowPrototypes: false
 	};
 
+
 	internals.parseValues = function (str, options) {
+
 	    var obj = {};
 	    var parts = str.split(options.delimiter, options.parameterLimit === Infinity ? undefined : options.parameterLimit);
 
-	    for (var i = 0; i < parts.length; ++i) {
+	    for (var i = 0, il = parts.length; i < il; ++i) {
 	        var part = parts[i];
 	        var pos = part.indexOf(']=') === -1 ? part.indexOf('=') : part.indexOf(']=') + 1;
 
@@ -30004,14 +30164,16 @@
 	            if (options.strictNullHandling) {
 	                obj[Utils.decode(part)] = null;
 	            }
-	        } else {
+	        }
+	        else {
 	            var key = Utils.decode(part.slice(0, pos));
 	            var val = Utils.decode(part.slice(pos + 1));
 
-	            if (Object.prototype.hasOwnProperty.call(obj, key)) {
-	                obj[key] = [].concat(obj[key]).concat(val);
-	            } else {
+	            if (!Object.prototype.hasOwnProperty.call(obj, key)) {
 	                obj[key] = val;
+	            }
+	            else {
+	                obj[key] = [].concat(obj[key]).concat(val);
 	            }
 	        }
 	    }
@@ -30019,7 +30181,9 @@
 	    return obj;
 	};
 
+
 	internals.parseObject = function (chain, val, options) {
+
 	    if (!chain.length) {
 	        return val;
 	    }
@@ -30030,20 +30194,23 @@
 	    if (root === '[]') {
 	        obj = [];
 	        obj = obj.concat(internals.parseObject(chain, val, options));
-	    } else {
+	    }
+	    else {
 	        obj = options.plainObjects ? Object.create(null) : {};
 	        var cleanRoot = root[0] === '[' && root[root.length - 1] === ']' ? root.slice(1, root.length - 1) : root;
 	        var index = parseInt(cleanRoot, 10);
-	        if (
-	            !isNaN(index) &&
+	        var indexString = '' + index;
+	        if (!isNaN(index) &&
 	            root !== cleanRoot &&
-	            String(index) === cleanRoot &&
+	            indexString === cleanRoot &&
 	            index >= 0 &&
-	            (options.parseArrays && index <= options.arrayLimit)
-	        ) {
+	            (options.parseArrays &&
+	             index <= options.arrayLimit)) {
+
 	            obj = [];
 	            obj[index] = internals.parseObject(chain, val, options);
-	        } else {
+	        }
+	        else {
 	            obj[cleanRoot] = internals.parseObject(chain, val, options);
 	        }
 	    }
@@ -30051,13 +30218,18 @@
 	    return obj;
 	};
 
-	internals.parseKeys = function (givenKey, val, options) {
-	    if (!givenKey) {
+
+	internals.parseKeys = function (key, val, options) {
+
+	    if (!key) {
 	        return;
 	    }
 
 	    // Transform dot notation to bracket notation
-	    var key = options.allowDots ? givenKey.replace(/\.([^\.\[]+)/g, '[$1]') : givenKey;
+
+	    if (options.allowDots) {
+	        key = key.replace(/\.([^\.\[]+)/g, '[$1]');
+	    }
 
 	    // The regex chunks
 
@@ -30074,7 +30246,9 @@
 	    if (segment[1]) {
 	        // If we aren't using plain objects, optionally prefix keys
 	        // that would overwrite object prototype properties
-	        if (!options.plainObjects && Object.prototype.hasOwnProperty(segment[1])) {
+	        if (!options.plainObjects &&
+	            Object.prototype.hasOwnProperty(segment[1])) {
+
 	            if (!options.allowPrototypes) {
 	                return;
 	            }
@@ -30087,8 +30261,11 @@
 
 	    var i = 0;
 	    while ((segment = child.exec(key)) !== null && i < options.depth) {
-	        i += 1;
-	        if (!options.plainObjects && Object.prototype.hasOwnProperty(segment[1].replace(/\[|\]/g, ''))) {
+
+	        ++i;
+	        if (!options.plainObjects &&
+	            Object.prototype.hasOwnProperty(segment[1].replace(/\[|\]/g, ''))) {
+
 	            if (!options.allowPrototypes) {
 	                continue;
 	            }
@@ -30105,23 +30282,24 @@
 	    return internals.parseObject(keys, val, options);
 	};
 
-	module.exports = function (str, opts) {
-	    var options = opts || {};
+
+	module.exports = function (str, options) {
+
+	    options = options || {};
 	    options.delimiter = typeof options.delimiter === 'string' || Utils.isRegExp(options.delimiter) ? options.delimiter : internals.delimiter;
 	    options.depth = typeof options.depth === 'number' ? options.depth : internals.depth;
 	    options.arrayLimit = typeof options.arrayLimit === 'number' ? options.arrayLimit : internals.arrayLimit;
 	    options.parseArrays = options.parseArrays !== false;
-	    options.allowDots = typeof options.allowDots === 'boolean' ? options.allowDots : internals.allowDots;
+	    options.allowDots = options.allowDots !== false;
 	    options.plainObjects = typeof options.plainObjects === 'boolean' ? options.plainObjects : internals.plainObjects;
 	    options.allowPrototypes = typeof options.allowPrototypes === 'boolean' ? options.allowPrototypes : internals.allowPrototypes;
 	    options.parameterLimit = typeof options.parameterLimit === 'number' ? options.parameterLimit : internals.parameterLimit;
 	    options.strictNullHandling = typeof options.strictNullHandling === 'boolean' ? options.strictNullHandling : internals.strictNullHandling;
 
-	    if (
-	        str === '' ||
+	    if (str === '' ||
 	        str === null ||
-	        typeof str === 'undefined'
-	    ) {
+	        typeof str === 'undefined') {
+
 	        return options.plainObjects ? Object.create(null) : {};
 	    }
 
@@ -30131,7 +30309,7 @@
 	    // Iterate over the keys and setup the new object
 
 	    var keys = Object.keys(tempObj);
-	    for (var i = 0; i < keys.length; ++i) {
+	    for (var i = 0, il = keys.length; i < il; ++i) {
 	        var key = keys[i];
 	        var newObj = internals.parseKeys(key, tempObj[key], options);
 	        obj = Utils.merge(obj, newObj, options);
@@ -30142,16 +30320,16 @@
 
 
 /***/ },
-/* 479 */
+/* 481 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(480);
+	var content = __webpack_require__(482);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(482)(content, {});
+	var update = __webpack_require__(484)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -30168,10 +30346,10 @@
 	}
 
 /***/ },
-/* 480 */
+/* 482 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(481)();
+	exports = module.exports = __webpack_require__(483)();
 	// imports
 
 
@@ -30182,7 +30360,7 @@
 
 
 /***/ },
-/* 481 */
+/* 483 */
 /***/ function(module, exports) {
 
 	/*
@@ -30238,7 +30416,7 @@
 
 
 /***/ },
-/* 482 */
+/* 484 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -30488,139 +30666,6 @@
 			URL.revokeObjectURL(oldSrc);
 	}
 
-
-/***/ },
-/* 483 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.searchReducer = searchReducer;
-	function searchReducer(state, action) {
-
-	  switch (action.type) {
-	    case 'REQUEST_SEARCH':
-	      return Object.assign({}, state, {
-	        query: action.query
-	      });
-	      break;
-	    case 'RECEIVE_SEARCH':
-	      return Object.assign({}, state, {
-	        results: action.results
-	      });
-	      break;
-	    default:
-	      return state || {};
-	      break;
-	  }
-	}
-
-/***/ },
-/* 484 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.googleMapReducer = googleMapReducer;
-	function googleMapReducer(state, action) {
-
-	  switch (action.type) {
-	    case 'REQUEST_SEARCH':
-	      return state;
-	      break;
-	    default:
-	      return state || {};
-	      break;
-	  }
-	}
-
-/***/ },
-/* 485 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(293);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var SearchResults = function (_Component) {
-	  _inherits(SearchResults, _Component);
-
-	  function SearchResults() {
-	    _classCallCheck(this, SearchResults);
-
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(SearchResults).apply(this, arguments));
-	  }
-
-	  _createClass(SearchResults, [{
-	    key: 'render',
-	    value: function render() {
-	      var _props = this.props;
-	      var onItemClick = _props.onItemClick;
-	      var items = _props.items;
-
-
-	      console.log(items);
-
-	      return _react2.default.createElement(
-	        'div',
-	        { className: 'searchResults ' + (items.length ? '' : 'empty') },
-	        _react2.default.createElement(
-	          'ul',
-	          null,
-	          items.map(function (result, index) {
-	            return _react2.default.createElement(
-	              'li',
-	              { key: index, className: 'search-item', onClick: function onClick(e) {
-	                  return onItemClick(index);
-	                } },
-	              _react2.default.createElement(
-	                'div',
-	                { className: 'name' },
-	                result.name
-	              ),
-	              _react2.default.createElement(
-	                'address',
-	                null,
-	                result.address
-	              )
-	            );
-	          })
-	        )
-	      );
-	    }
-	  }]);
-
-	  return SearchResults;
-	}(_react.Component);
-
-	exports.default = SearchResults;
-
-	SearchResults.propTypes = {
-	  items: _react.PropTypes.array.isRequired,
-	  onItemClick: _react.PropTypes.func.isRequired
-	};
 
 /***/ }
 /******/ ]);
