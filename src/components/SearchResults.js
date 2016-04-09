@@ -18,20 +18,43 @@ let _isUser = function(obj) {
 
 export default class SearchResults extends Component {
 
+  constructor() {
+    super();
+    this.state = {
+      minimize: false
+    }
+  }
+
+  toggleMinimize() {
+    this.setState({
+      minimize: !this.state.minimize
+    })
+  }
+
   render() {
-    const { onItemClick, items } = this.props;
+    const { onItemClick, results } = this.props;
+
+    let classes = ['searchResults'];
+    if (!results.length) {
+      classes.push('empty')
+    }
+    if (this.state.minimize) {
+      classes.push('minimize');
+    }
 
     return (
-      <div className={ 'searchResults '+(items.length ? '' : 'empty') }>
+      <div className={ classes.join(' ') }>
+        <h4>{ results.length } results</h4>
+        <span className='btn-minimize' onClick={ () => this.toggleMinimize() }>=</span>
         <ul>
-          { items.filter(_isBusiness).map((result, index) => (
+          { results.filter(_isBusiness).map((result, index) => (
             <li key={ index } className="search-item">
               <BusinessItem business={ result } />
             </li>
           ))}
         </ul>
         <ul>
-          { items.filter(_isUsermap).map((result, index) => (
+          { results.filter(_isUsermap).map((result, index) => (
             <li key={ index } className="search-item">
               <UsermapItem usermap={ result } />
             </li>
@@ -43,6 +66,6 @@ export default class SearchResults extends Component {
 
 }
 SearchResults.propTypes = {
-  items: PropTypes.array.isRequired,
+  results: PropTypes.array.isRequired,
   onItemClick: PropTypes.func.isRequired
 };

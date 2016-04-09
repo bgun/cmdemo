@@ -34,52 +34,31 @@ let _isUser = function(obj) {
 
 class App extends Component {
 
-  constructor(props) {
-    super();
-  }
-
   componentWillReceiveProps(nextProps) {
     // This cannot go in componentDidMount because we might mount before Google Maps is initialized
-
     this._markersNeedRefresh = false;
-    if (nextProps.searchResults !== this.props.searchResults) {
+    if (nextProps.search.results !== this.props.search.results) {
       this._markersNeedRefresh = true;
     }
-    if (nextProps.activeUsermap && (nextProps.activeUsermap !== this.props.activeUsermap)) {
+    if (nextProps.params.map_id) {
       this._markersNeedRefresh = true;
     }
   }
 
   componentDidMount() {
-    let checkForGoogleMaps = () => {
-      console.log("checking for google maps");
-      setTimeout(() => {
-        if (global.googleMaps) {
-          this._googleMaps = global.googleMaps;
-          this.createMapIfNeeded();
-        } else {
-          checkForGoogleMaps();
-        }
-      }, 100);
-    };
-    checkForGoogleMaps();
-  }
-
-  createMapIfNeeded() {
-    let googleMaps = this._googleMaps;
+    this._googleMaps = global.google.maps;
     if (!this._map) {
-      let transitLayer = new googleMaps.TransitLayer();
-      this._map = new googleMaps.Map(this.refs.map, this.props.googleMapOptions);
+      let transitLayer = new this._googleMaps.TransitLayer();
+      this._map = new this._googleMaps.Map(this.refs.map, this.props.googleMapOptions);
       transitLayer.setMap(this._map);
       this._map.addListener('dragend', () => this.props.handleMapMove(this._map));
     }
+    console.log("context", this.context);
   }
 
   updateMap() {
     let googleMaps = this._googleMaps;
-
     let bounds = new googleMaps.LatLngBounds();
-
     // remove all existing markers
     if (this._markerObjects) {
       this._markerObjects.forEach(obj => {
@@ -87,43 +66,49 @@ class App extends Component {
       });
     }
 
-    if (this.props.activeUsermap) {
-      let markers = this.props.activeUsermap.markers || [];
-      this._markerObjects = markers.map((m, index) => {
-        let LL = new googleMaps.LatLng(m.business.lat, m.business.lon);
-        let marker = new googleMaps.Marker({
-          position: LL,
-          map: this._map
+    if (this.props.params.map_id) {
+      console.log("updating map!");
+      let usermap = this.props.usermaps[this.props.params.map_id];
+      if (usermap && usermap.markers) {
+        let markers = usermap.markers;
+        this._markerObjects = markers.map((m, index) => {
+          let LL = new googleMaps.LatLng(m.business.lat, m.business.lon);
+          let marker = new googleMaps.Marker({
+            position: LL,
+            map: this._map
+          });
+          let popup = new googleMaps.InfoWindow({
+            content: m.business.name
+          });
+
+          let obj = { marker, popup };
+          marker.addListener('click', () => this.openMarker(index));
+          bounds.extend(LL);
+          return obj;
         });
-        let popup = new googleMaps.InfoWindow({
-          content: m.business.name
+        this._map.fitBounds(bounds);
+      }
+    } else if (this.props.search.results) {
+      let businesses = this.props.search.results.filter(_isBusiness);
+      if (businesses.length) {
+        this._markerObjects = businesses.map((sr, index) => {
+          let LL = new googleMaps.LatLng(sr.lat, sr.lon);
+          let marker = new googleMaps.Marker({
+            position: LL,
+            map: this._map
+          });
+          let popup = new googleMaps.InfoWindow({
+            content: sr.name
+          });
+
+          let obj = { marker, popup };
+          marker.addListener('click', () => this.openMarker(index));
+
+          bounds.extend(LL);
+          return obj;
         });
-
-        let obj = { marker, popup };
-        marker.addListener('click', () => this.openMarker(index));
-
-        bounds.extend(LL);
-        return obj;
-      });
-    } else if (this.props.searchResults) {
-      this._markerObjects = this.props.searchResults.filter(_isBusiness).map((sr, index) => {
-        let LL = new googleMaps.LatLng(sr.lat, sr.lon);
-        let marker = new googleMaps.Marker({
-          position: LL,
-          map: this._map
-        });
-        let popup = new googleMaps.InfoWindow({
-          content: sr.name
-        });
-
-        let obj = { marker, popup };
-        marker.addListener('click', () => this.openMarker(index));
-
-        bounds.extend(LL);
-        return obj;
-      });
-
-      this._map.fitBounds(bounds);
+        this._map.fitBounds(bounds);
+      }
     }
   }
 
@@ -145,7 +130,7 @@ class App extends Component {
     return (
       <div>
         <div className='map-container' ref="map"></div>
-        <SearchInput handleChange={ query => this.props.handleSearchQuery(query) } value={ this.props.searchQuery } />
+        <SearchInput handleChange={ search => this.props.handleSearchQuery(search) } search={ this.props.search } />
         <div className='content'>
           { this.props.children }
         </div>
@@ -156,19 +141,20 @@ class App extends Component {
 App.propTypes = {
   googleMaps: PropTypes.any
 };
+App.contextTypes = {
+  router: React.PropTypes.object.isRequired
+};
 
 
 export default connect(
   appState => ({
-    activeBusiness   : appState.route.type === 'business' ? (appState.business[appState.route.id] || { _loading: true }) : null,
-    activeUsermap    : appState.route.type === 'usermap'  ? (appState.usermaps[appState.route.id] || { _loading: true }) : null,
+    usermaps         : appState.usermaps,
     googleMapOptions : appState.googleMap,
-    searchQuery      : appState.search.query,
-    searchResults    : appState.search.results
+    search           : appState.search
   }),
   dispatch => ({
     handleClearRoute   : ()     => dispatch(Actions.clearRoute()),
     handleMapMove      : map    => dispatch(Actions.mapUpdate(map)),
-    handleSearchQuery  : query  => dispatch(Actions.executeSearch(query))
+    handleSearchQuery  : search => dispatch(Actions.executeSearch(search))
   })
 )(App);

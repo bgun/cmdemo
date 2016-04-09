@@ -22,21 +22,24 @@ class MarkerItem extends Component {
 export default class UsermapPanel extends Component {
 
   render() {
-    const { usermap } = this.props;
-    let loadingClass = '';
-    if (usermap._loading) {
-      loadingClass = 'loading';
+    let { usermap } = this.props;
+
+    if (!usermap) {
+      usermap = {
+        _loading: true,
+        markers: []
+      }
     }
 
-    let markers = usermap.markers || [];
-
     return (
-      <div className={ 'usermapPanel '+loadingClass }>
-        <h1>{ usermap.name }</h1>
-        <ul>
-          { markers.map((m, index) => <MarkerItem marker={ m } /> ) }
-        </ul>
-        <a className="btn-clear" href="/">x</a>
+      <div className={ 'usermapPanel '+(usermap._loading ? 'loading' : '') }>
+        <div>
+          <h1>{ usermap.name }</h1>
+          <ul>
+            { usermap.markers.map((m, index) => <MarkerItem key={ index } marker={ m } /> ) }
+          </ul>
+          <a className="btn-clear" href="/">x</a>
+        </div>
       </div>
     )
   }

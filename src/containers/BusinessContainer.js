@@ -21,18 +21,15 @@ class BusinessContainer extends Component {
 
   render() {
     let business = this.props.businesses[this.props.params.bid];
-
     return (
-      <div>
-        <BusinessPanel business={ business } handleClose={ () => this.props.handleClearRoute() } />
-      </div>
+      <BusinessPanel business={ business } />
     )
   }
 
 }
 export default connect(
   appState => ({
-    businesses: appState.business
+    businesses: appState.businesses
   }),
   dispatch => ({
     handleLoadBusiness : bid => dispatch(Actions.fetchBusiness(bid))

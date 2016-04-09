@@ -16,7 +16,6 @@ export default function fetchUsermap(map_id) {
     ]).then(responses => {
       let usermap = responses[0].map;
       usermap.markers = responses[1].markers;
-      console.log(responses);
       dispatch({
         type: 'RECEIVE_USERMAP',
         map_id: map_id,

@@ -12,10 +12,17 @@
   z-index: 3;
 
   &.empty {
-    bottom: -380px;
+    bottom: -400px;
   }
 
-  ul {
+  &.minimize {
+    bottom: -350px;
+  }
+
+  h4 {
+    border-bottom: 1px solid #AAA;
+    margin-bottom: 10px;
+    padding: 20px 20px 10px 20px;
   }
 
   .search-item {
@@ -35,5 +42,21 @@
   }
   .search-item:first-child {
     border-top: none;
+  }
+
+  .btn-minimize {
+    background: white;
+    border: 1px solid #DDD;
+    border-radius: 4px;
+    cursor: pointer;
+    display: block;
+    font-size: 20px;
+    height: 30px;
+    line-height: 30px;
+    position: absolute;
+      top: 10px;
+      right: 10px;
+    text-align: center;
+    width: 30px;
   }
 }

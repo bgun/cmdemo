@@ -88,8 +88,6 @@
 
 	var _googleMapReducer = __webpack_require__(472);
 
-	var _routeReducer = __webpack_require__(473);
-
 	var _searchReducer = __webpack_require__(474);
 
 	var _usermapReducer = __webpack_require__(475);
@@ -103,7 +101,7 @@
 	var loggerMiddleware = (0, _reduxLogger2.default)();
 
 	var initialAppState = {
-	  business: {},
+	  businesses: {},
 	  usermaps: {},
 	  googleMap: {
 	    center: {
@@ -113,21 +111,16 @@
 	    mapTypeControl: false,
 	    zoom: 13
 	  },
-	  route: {
-	    type: null,
-	    id: ''
-	  },
 	  search: {
-	    results: {
-	      items: []
-	    }
+	    query: '',
+	    types: 'businesses',
+	    results: []
 	  }
 	};
 
 	var store = (0, _redux.createStore)((0, _redux.combineReducers)({
-	  business: _businessReducer.businessReducer,
+	  businesses: _businessReducer.businessReducer,
 	  googleMap: _googleMapReducer.googleMapReducer,
-	  route: _routeReducer.routeReducer,
 	  search: _searchReducer.searchReducer,
 	  usermaps: _usermapReducer.usermapReducer
 	}), initialAppState, (0, _redux.applyMiddleware)(_reduxThunk2.default, loggerMiddleware));
@@ -139,7 +132,7 @@
 	  { store: store },
 	  _react2.default.createElement(
 	    _reactRouter.Router,
-	    null,
+	    { history: _reactRouter.browserHistory },
 	    _react2.default.createElement(
 	      _reactRouter.Route,
 	      { path: '/', component: _App2.default },
@@ -29430,50 +29423,7 @@
 	}
 
 /***/ },
-/* 473 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.routeReducer = routeReducer;
-	function routeReducer(state, action) {
-
-	  switch (action.type) {
-	    case 'REQUEST_BUSINESS':
-	      return Object.assign({}, state, {
-	        type: 'business',
-	        id: action.bid
-	      });
-	      break;
-	    case 'REQUEST_USERMAP':
-	      return Object.assign({}, state, {
-	        type: 'usermap',
-	        id: action.map_id
-	      });
-	      break;
-	    case 'REQUEST_SEARCH':
-	      return Object.assign({}, state, {
-	        type: 'search',
-	        query: action.query
-	      });
-	      break;
-	    case 'CLEAR_ROUTE':
-	      return Object.assign({}, state, {
-	        type: null,
-	        id: '',
-	        query: ''
-	      });
-	      break;
-	    default:
-	      return state || {};
-	      break;
-	  }
-	}
-
-/***/ },
+/* 473 */,
 /* 474 */
 /***/ function(module, exports) {
 
@@ -29488,12 +29438,14 @@
 	  switch (action.type) {
 	    case 'REQUEST_SEARCH':
 	      return Object.assign({}, state, {
-	        query: action.query
+	        query: action.search.query,
+	        types: action.search.types,
+	        results: []
 	      });
 	      break;
 	    case 'RECEIVE_SEARCH':
 	      return Object.assign({}, state, {
-	        results: action.results
+	        results: action.results.items
 	      });
 	      break;
 	    default:
@@ -29600,22 +29552,21 @@
 	var App = function (_Component) {
 	  _inherits(App, _Component);
 
-	  function App(props) {
+	  function App() {
 	    _classCallCheck(this, App);
 
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(App).call(this));
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(App).apply(this, arguments));
 	  }
 
 	  _createClass(App, [{
 	    key: 'componentWillReceiveProps',
 	    value: function componentWillReceiveProps(nextProps) {
 	      // This cannot go in componentDidMount because we might mount before Google Maps is initialized
-
 	      this._markersNeedRefresh = false;
-	      if (nextProps.searchResults !== this.props.searchResults) {
+	      if (nextProps.search.results !== this.props.search.results) {
 	        this._markersNeedRefresh = true;
 	      }
-	      if (nextProps.activeUsermap && nextProps.activeUsermap !== this.props.activeUsermap) {
+	      if (nextProps.params.map_id) {
 	        this._markersNeedRefresh = true;
 	      }
 	    }
@@ -29624,43 +29575,24 @@
 	    value: function componentDidMount() {
 	      var _this2 = this;
 
-	      var checkForGoogleMaps = function checkForGoogleMaps() {
-	        console.log("checking for google maps");
-	        setTimeout(function () {
-	          if (global.googleMaps) {
-	            _this2._googleMaps = global.googleMaps;
-	            _this2.createMapIfNeeded();
-	          } else {
-	            checkForGoogleMaps();
-	          }
-	        }, 100);
-	      };
-	      checkForGoogleMaps();
-	    }
-	  }, {
-	    key: 'createMapIfNeeded',
-	    value: function createMapIfNeeded() {
-	      var _this3 = this;
-
-	      var googleMaps = this._googleMaps;
+	      this._googleMaps = global.google.maps;
 	      if (!this._map) {
-	        var transitLayer = new googleMaps.TransitLayer();
-	        this._map = new googleMaps.Map(this.refs.map, this.props.googleMapOptions);
+	        var transitLayer = new this._googleMaps.TransitLayer();
+	        this._map = new this._googleMaps.Map(this.refs.map, this.props.googleMapOptions);
 	        transitLayer.setMap(this._map);
 	        this._map.addListener('dragend', function () {
-	          return _this3.props.handleMapMove(_this3._map);
+	          return _this2.props.handleMapMove(_this2._map);
 	        });
 	      }
+	      console.log("context", this.context);
 	    }
 	  }, {
 	    key: 'updateMap',
 	    value: function updateMap() {
-	      var _this4 = this;
+	      var _this3 = this;
 
 	      var googleMaps = this._googleMaps;
-
 	      var bounds = new googleMaps.LatLngBounds();
-
 	      // remove all existing markers
 	      if (this._markerObjects) {
 	        this._markerObjects.forEach(function (obj) {
@@ -29668,47 +29600,53 @@
 	        });
 	      }
 
-	      if (this.props.activeUsermap) {
-	        var markers = this.props.activeUsermap.markers || [];
-	        this._markerObjects = markers.map(function (m, index) {
-	          var LL = new googleMaps.LatLng(m.business.lat, m.business.lon);
-	          var marker = new googleMaps.Marker({
-	            position: LL,
-	            map: _this4._map
-	          });
-	          var popup = new googleMaps.InfoWindow({
-	            content: m.business.name
-	          });
+	      if (this.props.params.map_id) {
+	        console.log("updating map!");
+	        var usermap = this.props.usermaps[this.props.params.map_id];
+	        if (usermap && usermap.markers) {
+	          var markers = usermap.markers;
+	          this._markerObjects = markers.map(function (m, index) {
+	            var LL = new googleMaps.LatLng(m.business.lat, m.business.lon);
+	            var marker = new googleMaps.Marker({
+	              position: LL,
+	              map: _this3._map
+	            });
+	            var popup = new googleMaps.InfoWindow({
+	              content: m.business.name
+	            });
 
-	          var obj = { marker: marker, popup: popup };
-	          marker.addListener('click', function () {
-	            return _this4.openMarker(index);
+	            var obj = { marker: marker, popup: popup };
+	            marker.addListener('click', function () {
+	              return _this3.openMarker(index);
+	            });
+	            bounds.extend(LL);
+	            return obj;
 	          });
+	          this._map.fitBounds(bounds);
+	        }
+	      } else if (this.props.search.results) {
+	        var businesses = this.props.search.results.filter(_isBusiness);
+	        if (businesses.length) {
+	          this._markerObjects = businesses.map(function (sr, index) {
+	            var LL = new googleMaps.LatLng(sr.lat, sr.lon);
+	            var marker = new googleMaps.Marker({
+	              position: LL,
+	              map: _this3._map
+	            });
+	            var popup = new googleMaps.InfoWindow({
+	              content: sr.name
+	            });
 
-	          bounds.extend(LL);
-	          return obj;
-	        });
-	      } else if (this.props.searchResults) {
-	        this._markerObjects = this.props.searchResults.filter(_isBusiness).map(function (sr, index) {
-	          var LL = new googleMaps.LatLng(sr.lat, sr.lon);
-	          var marker = new googleMaps.Marker({
-	            position: LL,
-	            map: _this4._map
+	            var obj = { marker: marker, popup: popup };
+	            marker.addListener('click', function () {
+	              return _this3.openMarker(index);
+	            });
+
+	            bounds.extend(LL);
+	            return obj;
 	          });
-	          var popup = new googleMaps.InfoWindow({
-	            content: sr.name
-	          });
-
-	          var obj = { marker: marker, popup: popup };
-	          marker.addListener('click', function () {
-	            return _this4.openMarker(index);
-	          });
-
-	          bounds.extend(LL);
-	          return obj;
-	        });
-
-	        this._map.fitBounds(bounds);
+	          this._map.fitBounds(bounds);
+	        }
 	      }
 	    }
 	  }, {
@@ -29725,7 +29663,7 @@
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      var _this5 = this;
+	      var _this4 = this;
 
 	      if (this._markersNeedRefresh) {
 	        this.updateMap();
@@ -29735,9 +29673,9 @@
 	        'div',
 	        null,
 	        _react2.default.createElement('div', { className: 'map-container', ref: 'map' }),
-	        _react2.default.createElement(_SearchInput2.default, { handleChange: function handleChange(query) {
-	            return _this5.props.handleSearchQuery(query);
-	          }, value: this.props.searchQuery }),
+	        _react2.default.createElement(_SearchInput2.default, { handleChange: function handleChange(search) {
+	            return _this4.props.handleSearchQuery(search);
+	          }, search: this.props.search }),
 	        _react2.default.createElement(
 	          'div',
 	          { className: 'content' },
@@ -29753,14 +29691,15 @@
 	App.propTypes = {
 	  googleMaps: _react.PropTypes.any
 	};
+	App.contextTypes = {
+	  router: _react2.default.PropTypes.object.isRequired
+	};
 
 	exports.default = (0, _reactRedux.connect)(function (appState) {
 	  return {
-	    activeBusiness: appState.route.type === 'business' ? appState.business[appState.route.id] || { _loading: true } : null,
-	    activeUsermap: appState.route.type === 'usermap' ? appState.usermaps[appState.route.id] || { _loading: true } : null,
+	    usermaps: appState.usermaps,
 	    googleMapOptions: appState.googleMap,
-	    searchQuery: appState.search.query,
-	    searchResults: appState.search.results
+	    search: appState.search
 	  };
 	}, function (dispatch) {
 	  return {
@@ -29770,8 +29709,8 @@
 	    handleMapMove: function handleMapMove(map) {
 	      return dispatch(_actions2.default.mapUpdate(map));
 	    },
-	    handleSearchQuery: function handleSearchQuery(query) {
-	      return dispatch(_actions2.default.executeSearch(query));
+	    handleSearchQuery: function handleSearchQuery(search) {
+	      return dispatch(_actions2.default.executeSearch(search));
 	    }
 	  };
 	})(App);
@@ -29825,21 +29764,23 @@
 
 
 	      if (!business) {
-	        return null;
+	        business = {
+	          _loading: true
+	        };
 	      }
 
 	      var photo = null;
-	      if (business && business.external_meta && business.external_meta.photos) {
+	      if (business.external_meta && business.external_meta.photos) {
 	        photo = business.external_meta.photos[0] || {};
 	      }
 	      var tips = null;
-	      if (business && business.external_meta && business.external_meta.tips) {
+	      if (business.external_meta && business.external_meta.tips) {
 	        tips = business.external_meta.tips;
 	      }
 
 	      return _react2.default.createElement(
 	        'div',
-	        { className: 'businessPanel' },
+	        { className: 'businessPanel ' + (business ? '' : 'loading') },
 	        photo ? _react2.default.createElement('div', { className: 'photo', style: { backgroundImage: "url(" + photo.url + ")" } }) : null,
 	        _react2.default.createElement(
 	          'div',
@@ -29927,29 +29868,25 @@
 	var SearchInput = function (_Component) {
 	  _inherits(SearchInput, _Component);
 
-	  function SearchInput() {
+	  function SearchInput(props) {
 	    _classCallCheck(this, SearchInput);
 
 	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(SearchInput).call(this));
 
+	    console.log("input constructor", props);
 	    _this.state = {
-	      query: ''
+	      query: props.search.query,
+	      types: props.search.types
 	    };
 	    return _this;
 	  }
 
 	  _createClass(SearchInput, [{
-	    key: 'componentDidMount',
-	    value: function componentDidMount() {
-	      this.setState({
-	        query: this.props.query
-	      });
-	    }
-	  }, {
 	    key: 'componentWillReceiveProps',
 	    value: function componentWillReceiveProps(nextProps) {
 	      this.setState({
-	        query: nextProps.query
+	        query: nextProps.search.query,
+	        types: nextProps.search.types
 	      });
 	    }
 	  }, {
@@ -29957,16 +29894,28 @@
 	    value: function onKeyUp(ev) {
 	      if (ev.keyCode === 13) {
 	        var q = this.state.query;
+	        this.props.handleChange({
+	          query: q,
+	          types: this.state.types
+	        });
 	        this.context.router.push('/search/' + q);
-	        this.props.handleChange(q);
 	      }
 	    }
 	  }, {
-	    key: 'onChange',
-	    value: function onChange(ev) {
+	    key: 'handleInputChange',
+	    value: function handleInputChange(ev) {
 	      this.setState({
 	        query: ev.target.value
 	      });
+	    }
+	  }, {
+	    key: 'handleSelectChange',
+	    value: function handleSelectChange(ev) {
+	      this.props.handleChange({
+	        query: this.state.query,
+	        types: ev.target.value
+	      });
+	      this.context.router.push('/search/' + this.state.query);
 	    }
 	  }, {
 	    key: 'render',
@@ -29988,9 +29937,30 @@
 	              return _this2.onKeyUp(e);
 	            },
 	            onChange: function onChange(e) {
-	              return _this2.onChange(e);
+	              return _this2.handleInputChange(e);
 	            }
-	          })
+	          }),
+	          _react2.default.createElement(
+	            'select',
+	            { onChange: function onChange(ev) {
+	                return _this2.handleSelectChange(ev);
+	              }, value: this.state.types },
+	            _react2.default.createElement(
+	              'option',
+	              { value: 'businesses,usermaps' },
+	              'All'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: 'businesses' },
+	              'Businesses'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: 'usermaps' },
+	              'Maps'
+	            )
+	          )
 	        )
 	      );
 	    }
@@ -30058,24 +30028,59 @@
 	  function SearchResults() {
 	    _classCallCheck(this, SearchResults);
 
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(SearchResults).apply(this, arguments));
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(SearchResults).call(this));
+
+	    _this.state = {
+	      minimize: false
+	    };
+	    return _this;
 	  }
 
 	  _createClass(SearchResults, [{
+	    key: 'toggleMinimize',
+	    value: function toggleMinimize() {
+	      this.setState({
+	        minimize: !this.state.minimize
+	      });
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
+	      var _this2 = this;
+
 	      var _props = this.props;
 	      var onItemClick = _props.onItemClick;
-	      var items = _props.items;
+	      var results = _props.results;
 
+
+	      var classes = ['searchResults'];
+	      if (!results.length) {
+	        classes.push('empty');
+	      }
+	      if (this.state.minimize) {
+	        classes.push('minimize');
+	      }
 
 	      return _react2.default.createElement(
 	        'div',
-	        { className: 'searchResults ' + (items.length ? '' : 'empty') },
+	        { className: classes.join(' ') },
+	        _react2.default.createElement(
+	          'h4',
+	          null,
+	          results.length,
+	          ' results'
+	        ),
+	        _react2.default.createElement(
+	          'span',
+	          { className: 'btn-minimize', onClick: function onClick() {
+	              return _this2.toggleMinimize();
+	            } },
+	          '='
+	        ),
 	        _react2.default.createElement(
 	          'ul',
 	          null,
-	          items.filter(_isBusiness).map(function (result, index) {
+	          results.filter(_isBusiness).map(function (result, index) {
 	            return _react2.default.createElement(
 	              'li',
 	              { key: index, className: 'search-item' },
@@ -30086,7 +30091,7 @@
 	        _react2.default.createElement(
 	          'ul',
 	          null,
-	          items.filter(_isUsermap).map(function (result, index) {
+	          results.filter(_isUsermap).map(function (result, index) {
 	            return _react2.default.createElement(
 	              'li',
 	              { key: index, className: 'search-item' },
@@ -30104,7 +30109,7 @@
 	exports.default = SearchResults;
 
 	SearchResults.propTypes = {
-	  items: _react.PropTypes.array.isRequired,
+	  results: _react.PropTypes.array.isRequired,
 	  onItemClick: _react.PropTypes.func.isRequired
 	};
 
@@ -30179,32 +30184,37 @@
 	    value: function render() {
 	      var usermap = this.props.usermap;
 
-	      var loadingClass = '';
-	      if (usermap._loading) {
-	        loadingClass = 'loading';
-	      }
 
-	      var markers = usermap.markers || [];
+	      if (!usermap) {
+	        usermap = {
+	          _loading: true,
+	          markers: []
+	        };
+	      }
 
 	      return _react2.default.createElement(
 	        'div',
-	        { className: 'usermapPanel ' + loadingClass },
+	        { className: 'usermapPanel ' + (usermap._loading ? 'loading' : '') },
 	        _react2.default.createElement(
-	          'h1',
+	          'div',
 	          null,
-	          usermap.name
-	        ),
-	        _react2.default.createElement(
-	          'ul',
-	          null,
-	          markers.map(function (m, index) {
-	            return _react2.default.createElement(MarkerItem, { marker: m });
-	          })
-	        ),
-	        _react2.default.createElement(
-	          'a',
-	          { className: 'btn-clear', href: '/' },
-	          'x'
+	          _react2.default.createElement(
+	            'h1',
+	            null,
+	            usermap.name
+	          ),
+	          _react2.default.createElement(
+	            'ul',
+	            null,
+	            usermap.markers.map(function (m, index) {
+	              return _react2.default.createElement(MarkerItem, { key: index, marker: m });
+	            })
+	          ),
+	          _react2.default.createElement(
+	            'a',
+	            { className: 'btn-clear', href: '/' },
+	            'x'
+	          )
 	        )
 	      );
 	    }
@@ -30281,19 +30291,29 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	function executeSearch(query) {
+	function executeSearch(search) {
 
 	  return function (dispatch, getState) {
+
+	    console.log("searching", search);
+
+	    if (!search || !search.query) {
+	      console.warn("no query text");
+	      return null;
+	    }
+
+	    var search_businesses = search.types.indexOf('businesses') === -1 ? 0 : 1;
+	    var search_usermaps = search.types.indexOf('usermaps') === -1 ? 0 : 1;
 
 	    var params = {
 	      lat: getState().googleMap.center.lat,
 	      lon: getState().googleMap.center.lng,
 	      zoom: 15,
 	      radius: 5,
-	      businesses: 1,
+	      businesses: search_businesses,
 	      locations: 0,
-	      users: 1,
-	      user_maps: 1,
+	      users: 0,
+	      user_maps: search_usermaps,
 	      categories: 0,
 	      client: "web",
 	      max_businesses: 10,
@@ -30303,11 +30323,11 @@
 	      max_categories: 3
 	    };
 
-	    var url = "https://ndev-coresearch.citymaps.com/search/autocomplete/" + query + "?" + _qs2.default.stringify(params);
+	    var url = "https://ndev-coresearch.citymaps.com/search/autocomplete/" + search.query + "?" + _qs2.default.stringify(params);
 
 	    dispatch({
 	      type: 'REQUEST_SEARCH',
-	      query: query
+	      search: search
 	    });
 
 	    fetch(url).then(function (response) {
@@ -30884,7 +30904,6 @@
 	    })]).then(function (responses) {
 	      var usermap = responses[0].map;
 	      usermap.markers = responses[1].markers;
-	      console.log(responses);
 	      dispatch({
 	        type: 'RECEIVE_USERMAP',
 	        map_id: map_id,
@@ -30929,7 +30948,7 @@
 
 
 	// module
-	exports.push([module.id, ".container-panel {\n  background: white;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);\n}\n* {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n}\nhtml,\nbody {\n  font-family: sans-serif;\n}\nul,\nli {\n  list-style: none;\n}\na {\n  color: #555;\n  text-decoration: none;\n}\na:hover {\n  color: #58F;\n}\n.map-container {\n  background: #DDD;\n  height: 100%;\n  position: fixed !important;\n  left: 0;\n  top: 0;\n  width: 100%;\n  z-index: 1;\n}\n.searchInput {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  z-index: 2;\n}\n.searchInput .inner {\n  background: white;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);\n  border: 0;\n  margin: 0 auto;\n  max-width: 500px;\n  width: 90%;\n  position: relative;\n  top: 10px;\n}\n.searchInput input {\n  border: none;\n  font-size: 16px;\n  height: 40px;\n  margin: 0 auto;\n  outline: none;\n  padding: 0 10px;\n  max-width: 500px;\n  width: 100%;\n}\n.content {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  z-index: 2;\n}\n.btn-clear {\n  background: white;\n  border: 1px solid #DDD;\n  border-radius: 4px;\n  cursor: pointer;\n  display: block;\n  font-size: 20px;\n  height: 30px;\n  line-height: 30px;\n  position: absolute;\n  top: 10px;\n  right: 10px;\n  text-align: center;\n  width: 30px;\n}\n.usermapPanel {\n  background: white;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);\n  height: 500px;\n  overflow-y: scroll;\n  padding: 20px;\n  position: fixed;\n  bottom: 10px;\n  left: 10px;\n  right: 10px;\n  transition: all 0.2s;\n  z-index: 4;\n}\n.usermapPanel.loading {\n  left: 100%;\n}\n", ""]);
+	exports.push([module.id, ".container-panel {\n  background: white;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);\n}\n* {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n}\nhtml,\nbody {\n  font-family: sans-serif;\n}\nul,\nli {\n  list-style: none;\n}\na {\n  color: #555;\n  text-decoration: none;\n}\na:hover {\n  color: #58F;\n}\n.map-container {\n  background: #DDD;\n  height: 100%;\n  position: fixed !important;\n  left: 0;\n  top: 0;\n  width: 100%;\n  z-index: 1;\n}\n.searchInput {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  z-index: 2;\n}\n.searchInput .inner {\n  background: white;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);\n  border: 0;\n  margin: 0 auto;\n  max-width: 500px;\n  width: 90%;\n  position: relative;\n  top: 10px;\n}\n.searchInput input {\n  border: none;\n  font-size: 16px;\n  height: 40px;\n  margin: 0 auto;\n  outline: none;\n  padding: 0 10px;\n  max-width: 500px;\n  width: 70%;\n}\n.searchInput select {\n  width: 30%;\n}\n.content {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  z-index: 2;\n}\n.btn-clear {\n  background: white;\n  border: 1px solid #DDD;\n  border-radius: 4px;\n  cursor: pointer;\n  display: block;\n  font-size: 20px;\n  height: 30px;\n  line-height: 30px;\n  position: absolute;\n  top: 10px;\n  right: 10px;\n  text-align: center;\n  width: 30px;\n}\n.usermapPanel {\n  background: white;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);\n  height: 500px;\n  overflow-y: scroll;\n  padding: 20px;\n  position: fixed;\n  bottom: 10px;\n  left: 10px;\n  right: 10px;\n  transition: all 0.2s;\n  z-index: 4;\n}\n.usermapPanel.loading {\n  left: 100%;\n}\n", ""]);
 
 	// exports
 
@@ -31317,7 +31336,7 @@
 
 
 	// module
-	exports.push([module.id, ".container-panel {\n  background: white;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);\n}\n.searchResults {\n  background: white;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);\n  height: 400px;\n  overflow-y: scroll;\n  position: fixed;\n  bottom: 10px;\n  left: 10px;\n  right: 10px;\n  transition: all 0.2s;\n  z-index: 3;\n}\n.searchResults.empty {\n  bottom: -380px;\n}\n.searchResults .search-item {\n  border-top: 1px solid #EEE;\n  margin: 10px;\n}\n.searchResults .search-item a {\n  color: #666;\n  display: block;\n  padding: 10px;\n  text-decoration: none;\n}\n.searchResults .search-item .name,\n.searchResults .search-item address {\n  display: block;\n}\n.searchResults .search-item:first-child {\n  border-top: none;\n}\n", ""]);
+	exports.push([module.id, ".container-panel {\n  background: white;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);\n}\n.searchResults {\n  background: white;\n  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);\n  height: 400px;\n  overflow-y: scroll;\n  position: fixed;\n  bottom: 10px;\n  left: 10px;\n  right: 10px;\n  transition: all 0.2s;\n  z-index: 3;\n}\n.searchResults.empty {\n  bottom: -400px;\n}\n.searchResults.minimize {\n  bottom: -350px;\n}\n.searchResults h4 {\n  border-bottom: 1px solid #AAA;\n  margin-bottom: 10px;\n  padding: 20px 20px 10px 20px;\n}\n.searchResults .search-item {\n  border-top: 1px solid #EEE;\n  margin: 10px;\n}\n.searchResults .search-item a {\n  color: #666;\n  display: block;\n  padding: 10px;\n  text-decoration: none;\n}\n.searchResults .search-item .name,\n.searchResults .search-item address {\n  display: block;\n}\n.searchResults .search-item:first-child {\n  border-top: none;\n}\n.searchResults .btn-minimize {\n  background: white;\n  border: 1px solid #DDD;\n  border-radius: 4px;\n  cursor: pointer;\n  display: block;\n  font-size: 20px;\n  height: 30px;\n  line-height: 30px;\n  position: absolute;\n  top: 10px;\n  right: 10px;\n  text-align: center;\n  width: 30px;\n}\n", ""]);
 
 	// exports
 
@@ -36509,6 +36528,10 @@
 
 	var _reactRedux = __webpack_require__(450);
 
+	var _actions = __webpack_require__(481);
+
+	var _actions2 = _interopRequireDefault(_actions);
+
 	var _UsermapPanel = __webpack_require__(480);
 
 	var _UsermapPanel2 = _interopRequireDefault(_UsermapPanel);
@@ -36531,13 +36554,23 @@
 	  }
 
 	  _createClass(UsermapContainer, [{
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      this.props.handleLoadUsermap(this.props.params.map_id);
+	    }
+	  }, {
+	    key: 'componentWillReceiveProps',
+	    value: function componentWillReceiveProps(nextProps) {
+	      var map_id = this.props.params.map_id;
+	      if (map_id !== nextProps.params.map_id) {
+	        nextProps.handleLoadUsermap(nextProps.params.map_id);
+	      }
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
-	      return _react2.default.createElement(
-	        'div',
-	        null,
-	        _react2.default.createElement(_UsermapPanel2.default, { usermap: this.props.activeUsermap })
-	      );
+	      var usermap = this.props.usermaps[this.props.params.map_id];
+	      return _react2.default.createElement(_UsermapPanel2.default, { usermap: usermap });
 	    }
 	  }]);
 
@@ -36546,8 +36579,13 @@
 
 	exports.default = (0, _reactRedux.connect)(function (appState) {
 	  return {
-	    activeBusiness: appState.route.type === 'business' ? appState.business[appState.route.id] || { _loading: true } : null,
-	    activeUsermap: appState.route.type === 'usermap' ? appState.usermaps[appState.route.id] || { _loading: true } : null
+	    usermaps: appState.usermaps
+	  };
+	}, function (dispatch) {
+	  return {
+	    handleLoadUsermap: function handleLoadUsermap(map_id) {
+	      return dispatch(_actions2.default.fetchUsermap(map_id));
+	    }
 	  };
 	})(UsermapContainer);
 
@@ -36597,20 +36635,27 @@
 	  _createClass(SearchContainer, [{
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
-	      this.props.handleSearchQuery(this.props.params.query);
+	      this.props.handleSearchQuery({
+	        query: this.props.params.query,
+	        types: this.props.search.types
+	      });
 	    }
 	  }, {
 	    key: 'componentWillReceiveProps',
 	    value: function componentWillReceiveProps(nextProps) {
-	      console.log("got props", nextProps, this.props);
-	      if (nextProps.searchQuery !== this.props.searchQuery) {
-	        nextProps.handleSearchQuery(nextProps.searchQuery);
+	      /*
+	      if (nextProps.search !== this.props.search) {
+	        nextProps.handleSearchQuery({
+	          query: nextProps.params.query,
+	          types: this.props.search.types
+	        });
 	      }
+	      */
 	    }
 	  }, {
 	    key: 'clickItem',
 	    value: function clickItem(index) {
-	      var item = this.props.searchResults[index];
+	      var item = this.props.search.results[index];
 	      if (_isBusiness(item)) {
 	        this.openMarker(index);
 	        this.props.handleLoadBusiness(item.bid);
@@ -36628,7 +36673,7 @@
 	      return _react2.default.createElement(
 	        'div',
 	        null,
-	        _react2.default.createElement(_SearchResults2.default, { items: this.props.searchResults, onItemClick: function onItemClick(index) {
+	        _react2.default.createElement(_SearchResults2.default, { results: this.props.search.results, onItemClick: function onItemClick(index) {
 	            return _this2.clickItem(index);
 	          } })
 	      );
@@ -36646,8 +36691,7 @@
 	exports.default = (0, _reactRedux.connect)(function (appState) {
 	  return {
 	    googleMapOptions: appState.googleMap,
-	    searchQuery: appState.search.query,
-	    searchResults: appState.search.results.items || []
+	    search: appState.search
 	  };
 	}, function (dispatch) {
 	  return {
@@ -36657,8 +36701,8 @@
 	    handleLoadUsermap: function handleLoadUsermap(map_id) {
 	      return dispatch(_actions2.default.fetchUsermap(map_id));
 	    },
-	    handleSearchQuery: function handleSearchQuery(query) {
-	      return dispatch(_actions2.default.executeSearch(query));
+	    handleSearchQuery: function handleSearchQuery(search) {
+	      return dispatch(_actions2.default.executeSearch(search));
 	    }
 	  };
 	})(SearchContainer);
@@ -36722,17 +36766,8 @@
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      var _this2 = this;
-
 	      var business = this.props.businesses[this.props.params.bid];
-
-	      return _react2.default.createElement(
-	        'div',
-	        null,
-	        _react2.default.createElement(_BusinessPanel2.default, { business: business, handleClose: function handleClose() {
-	            return _this2.props.handleClearRoute();
-	          } })
-	      );
+	      return _react2.default.createElement(_BusinessPanel2.default, { business: business });
 	    }
 	  }]);
 
@@ -36741,7 +36776,7 @@
 
 	exports.default = (0, _reactRedux.connect)(function (appState) {
 	  return {
-	    businesses: appState.business
+	    businesses: appState.businesses
 	  };
 	}, function (dispatch) {
 	  return {

@@ -18,7 +18,6 @@ import UsermapContainer  from './containers/UsermapContainer';
 
 import { businessReducer  } from './reducers/businessReducer';
 import { googleMapReducer } from './reducers/googleMapReducer';
-import { routeReducer     } from './reducers/routeReducer';
 import { searchReducer    } from './reducers/searchReducer';
 import { usermapReducer   } from './reducers/usermapReducer';
 
@@ -27,7 +26,7 @@ const loggerMiddleware = createLogger();
 
 
 const initialAppState = {
-  business: {},
+  businesses: {},
   usermaps: {},
   googleMap: {
     center: {
@@ -37,24 +36,19 @@ const initialAppState = {
     mapTypeControl: false,
     zoom: 13
   },
-  route: {
-    type: null,
-    id: ''
-  },
   search: {
-    results: {
-      items: []
-    }
+    query: '',
+    types: 'businesses',
+    results: []
   }
 };
 
 let store = createStore(
   combineReducers({
-    business : businessReducer,
-    googleMap: googleMapReducer,
-    route    : routeReducer,
-    search   : searchReducer,
-    usermaps : usermapReducer
+    businesses : businessReducer,
+    googleMap  : googleMapReducer,
+    search     : searchReducer,
+    usermaps   : usermapReducer
   }),
   initialAppState,
   applyMiddleware(
@@ -71,7 +65,7 @@ import App from './containers/App';
 
 ReactDOM.render(
   <Provider store={ store }>
-    <Router>
+    <Router history={ browserHistory }>
       <Route path="/" component={ App }>
         <Route path="search/:query" component={ SearchContainer } />
         <Route path="business/:bid" component={ BusinessContainer } />

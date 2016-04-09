@@ -1,18 +1,28 @@
 import qs from 'qs';
 
-export default function executeSearch(query) {
+export default function executeSearch(search) {
 
   return (dispatch, getState) => {
+
+    console.log("searching",search);
+
+    if (!search || !search.query) {
+      console.warn("no query text");
+      return null;
+    }
+
+    let search_businesses = (search.types.indexOf('businesses') === -1) ? 0 : 1;
+    let search_usermaps   = (search.types.indexOf('usermaps'  ) === -1) ? 0 : 1;
 
     let params = {
       lat: getState().googleMap.center.lat,
       lon: getState().googleMap.center.lng,
       zoom: 15,
       radius: 5,
-      businesses: 1,
+      businesses: search_businesses,
       locations: 0,
-      users: 1,
-      user_maps: 1,
+      users: 0,
+      user_maps: search_usermaps,
       categories: 0,
       client: "web",
       max_businesses: 10,
@@ -22,11 +32,11 @@ export default function executeSearch(query) {
       max_categories: 3
     };
 
-    let url = "https://ndev-coresearch.citymaps.com/search/autocomplete/"+query+"?" + qs.stringify(params);
+    let url = "https://ndev-coresearch.citymaps.com/search/autocomplete/"+search.query+"?" + qs.stringify(params);
 
     dispatch({
       type: 'REQUEST_SEARCH',
-      query: query
+      search: search
     });
 
     fetch(url)

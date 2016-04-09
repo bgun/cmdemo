@@ -9,23 +9,25 @@ require('../../css/BusinessPanel.less');
 export default class BusinessPanel extends Component {
 
   render() {
-    const { business } = this.props;
+    let { business } = this.props;
 
     if (!business) {
-      return null;
+      business = {
+        _loading: true
+      }
     }
 
     let photo = null;
-    if (business && business.external_meta && business.external_meta.photos) {
+    if (business.external_meta && business.external_meta.photos) {
       photo = business.external_meta.photos[0] || {};
     }
     let tips = null;
-    if (business && business.external_meta && business.external_meta.tips) {
+    if (business.external_meta && business.external_meta.tips) {
       tips = business.external_meta.tips;
     }
 
     return (
-      <div className='businessPanel'>
+      <div className={ 'businessPanel '+(business ? '' : 'loading') }>
         { photo ? <div className="photo" style={{ backgroundImage: "url("+photo.url+")" }} /> : null }
         <div className="inner">
           <h1>{ business.name }</h1>

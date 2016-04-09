@@ -9,18 +9,25 @@ import SearchResults from '../components/SearchResults';
 class SearchContainer extends Component {
 
   componentDidMount() {
-    this.props.handleSearchQuery(this.props.params.query);
+    this.props.handleSearchQuery({
+      query: this.props.params.query,
+      types: this.props.search.types
+    });
   }
 
   componentWillReceiveProps(nextProps) {
-    console.log("got props", nextProps, this.props);
-    if (nextProps.searchQuery !== this.props.searchQuery) {
-      nextProps.handleSearchQuery(nextProps.searchQuery);
+    /*
+    if (nextProps.search !== this.props.search) {
+      nextProps.handleSearchQuery({
+        query: nextProps.params.query,
+        types: this.props.search.types
+      });
     }
+    */
   }
 
   clickItem(index) {
-    let item = this.props.searchResults[index];
+    let item = this.props.search.results[index];
     if (_isBusiness(item)) {
       this.openMarker(index);
       this.props.handleLoadBusiness(item.bid);
@@ -34,7 +41,7 @@ class SearchContainer extends Component {
   render() {
     return (
       <div>
-        <SearchResults items={ this.props.searchResults } onItemClick={ index => this.clickItem(index) } />
+        <SearchResults results={ this.props.search.results } onItemClick={ index => this.clickItem(index) } />
       </div>
     )
   }
@@ -49,12 +56,11 @@ SearchContainer.propTypes = {
 export default connect(
   appState => ({
     googleMapOptions : appState.googleMap,
-    searchQuery      : appState.search.query,
-    searchResults    : appState.search.results.items || [],
+    search           : appState.search
   }),
   dispatch => ({
     handleLoadBusiness : bid    => dispatch(Actions.fetchBusiness(bid)),
     handleLoadUsermap  : map_id => dispatch(Actions.fetchUsermap(map_id)),
-    handleSearchQuery  : query  => dispatch(Actions.executeSearch(query))
+    handleSearchQuery  : search => dispatch(Actions.executeSearch(search))
   })
 )(SearchContainer);
