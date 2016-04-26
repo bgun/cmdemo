@@ -1,0 +1,39 @@
+@import './mixins';
+
+.businessPanel {
+  .container-panel;
+  overflow-y: scroll;
+  padding: 0;
+  position: fixed;
+  top: 60px;
+  bottom: 10px;
+  left: 10px;
+  right: 10px;
+  transition: all 0.2s;
+  z-index: 4;
+
+  .inner {
+    padding: 20px;
+  }
+
+  &.loading {
+    left: 100%;
+  }
+
+  .photo {
+    background-color: #DDD;
+    background-position: center;
+    background-size: cover;
+    min-height: 300px;
+  }
+
+  .comments {
+    margin-top: 20px;
+
+    .businessComment {
+      font-size: 14px;
+      padding: 10px 0;
+    }
+  }
+}
+

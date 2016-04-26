@@ -1,0 +1,62 @@
+@import './mixins';
+
+.searchResults {
+  .container-panel;
+  height: 400px;
+  overflow-y: scroll;
+  position: fixed;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+  transition: all 0.2s;
+  z-index: 3;
+
+  &.empty {
+    bottom: -400px;
+  }
+
+  &.minimize {
+    bottom: -350px;
+  }
+
+  h4 {
+    border-bottom: 1px solid #AAA;
+    margin-bottom: 10px;
+    padding: 20px 20px 10px 20px;
+  }
+
+  .search-item {
+    border-top: 1px solid #EEE;
+    margin: 10px;
+
+    a {
+      color: #666;
+      display: block;
+      padding: 10px;
+      text-decoration: none;
+    }
+
+    .name, address {
+      display: block;
+    }
+  }
+  .search-item:first-child {
+    border-top: none;
+  }
+
+  .btn-minimize {
+    background: white;
+    border: 1px solid #DDD;
+    border-radius: 4px;
+    cursor: pointer;
+    display: block;
+    font-size: 20px;
+    height: 30px;
+    line-height: 30px;
+    position: absolute;
+      top: 10px;
+      right: 10px;
+    text-align: center;
+    width: 30px;
+  }
+}
