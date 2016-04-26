@@ -24,7 +24,7 @@ export function executeSearch(query) {
       max_categories: 3
     };
 
-    let url = "https://ndev-coresearch.citymaps.com/search/autocomplete/"+query+"?" + qs.stringify(params);
+    let url = "https://coresearch.citymaps.com/search/autocomplete/"+query+"?" + qs.stringify(params);
 
     dispatch({
       type: 'REQUEST_SEARCH',
